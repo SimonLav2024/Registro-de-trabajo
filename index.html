@@ -69,22 +69,25 @@
 
   <!-- =========== SECCIÓN 3: TABLA DE REGISTROS =========== -->
   <!-- Tabla dinámica que muestra todos los registros del mes -->
-  <table>
-    <thead>
-      <tr>
-        <!-- Encabezados clickeables para ordenar registros -->
-        <th data-column="fecha">Fecha</th>
-        <th data-column="hora_entrada">Entrada</th>
-        <th data-column="hora_salida">Salida</th>
-        <th data-column="lugar_trabajo">Lugar</th>
-        <th data-column="horas_totales">Horas Totales</th>
-        <!-- Columna de acciones (modificar/borrar) -->
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <!-- Cuerpo dinámico (se llena con JavaScript) -->
-    <tbody id="tabla-registros"></tbody>
-  </table>
+   <div class="vista_movil">
+    <table>
+      <thead>
+        <tr>
+          <!-- Encabezados clickeables para ordenar registros -->
+          <th data-column="fecha">Fecha</th>
+          <th data-column="hora_entrada">Entrada</th>
+          <th data-column="hora_salida">Salida</th>
+          <th data-column="lugar_trabajo">Lugar</th>
+          <th data-column="horas_totales">Horas Totales</th>
+          <!-- Columna de acciones (modificar/borrar) -->
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <!-- Cuerpo dinámico (se llena con JavaScript) -->
+      <tbody id="tabla-registros"></tbody>
+    </table>
+   </div>
+  
 
   <!-- =========== SECCIÓN 4: TOTALES DEL MES =========== -->
   <!-- Contenedor para mostrar horas totales del mes seleccionado -->

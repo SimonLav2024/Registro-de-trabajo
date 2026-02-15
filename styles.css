@@ -637,7 +637,12 @@ footer {
   }
   
   table {
-    font-size: 0.8rem;
+    font-size: 0.6rem;
+  }
+  
+  .vista_movil {
+    overflow-x: auto;   /* Permite scroll horizontal */
+    -webkit-overflow-scrolling: touch; /* Suaviza el scroll en móviles iOS */
   }
   
   th,
