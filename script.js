@@ -520,7 +520,7 @@ tabla.addEventListener('click', async e => {
 });
 
 // =====================================================
-// 6. 
+// 6. MEJORAS DE USABILIDAD - BOTÓN DE SCROLL
 // =====================================================
 
   const scrollBtn = document.getElementById("scroll-btn");
