@@ -1,0 +1,665 @@
+/* ===================================================== */
+/* REGISTRO DE TRABAJO - ESTILOS CSS */
+/* ===================================================== */
+
+/* ===================================================== */
+/* 1. VARIABLES Y COLORES */
+/* ===================================================== */
+
+:root {
+  --color-primary: #1a4d7a;
+  --color-secondary: #2a6fa8;
+  --color-success: #1a7f4a;
+  --color-danger: #c1392b;
+  --color-warning: #d99a00;
+  --color-light: #1a2332;
+  --color-dark: #0f1621;
+  --color-border: #354557;
+  --color-text: #e0e6ed;
+  --color-bg-primary: #0f1621;
+  --color-bg-secondary: #1a2332;
+  --color-bg-tertiary: #253345;
+  
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.9);
+}
+
+
+/* ===================================================== */
+/* 2. RESET Y ESTILOS GENERALES */
+/* ===================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text);
+  line-height: 1.6;
+  padding: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h2 {
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-md);
+  font-size: 1.8rem;
+  font-weight: 600;
+  border-bottom: 3px solid var(--color-primary);
+  padding-bottom: var(--spacing-sm);
+}
+
+h3 {
+  color: var(--color-text);
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+
+/* ===================================================== */
+/* 3. ESTILOS DEL FORMULARIO */
+/* ===================================================== */
+
+form {
+  background: var(--color-bg-secondary);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--spacing-lg);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid var(--color-border);
+}
+
+/* Contenedor de cada campo */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* Posicionar form-groups por tipo de input */
+.form-group:has(input[type="date"]) {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.form-group:has(input[type="time"]):nth-of-type(2) {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.form-group:has(input[type="time"]):nth-of-type(3) {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.form-group:has(input[type="text"]) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+/* Botón ocupa ambas columnas */
+form button[type="submit"] {
+  grid-column: 1 / -1;
+}
+
+/* Estilos de labels */
+label {
+  font-weight: 700;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+input[type="date"],
+input[type="time"],
+input[type="text"] {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  width: 100%;
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text);
+}
+
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26, 77, 122, 0.3);
+}
+
+input[type="date"]::placeholder,
+input[type="time"]::placeholder,
+input[type="text"]::placeholder {
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+/* Mejorar visibilidad de text color en inputs */
+input[type="date"],
+input[type="time"],
+input[type="text"] {
+  color: var(--color-text);
+}
+
+/* Placeholder styling para navegadores webkit */
+input[type="time"]::placeholder {
+  opacity: 1;
+}
+
+
+/* ===================================================== */
+/* 4. BOTONES */
+/* ===================================================== */
+
+button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+/* Botón principal (Guardar) */
+form button[type="submit"] {
+  background-color: var(--color-success);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: 0.9rem;
+  width: 100%;
+  max-width: 275px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+form button[type="submit"]:hover {
+  background-color: #0f5835;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+form button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+/* Botones de PDF */
+#preview-pdf,
+#download-pdf {
+  background-color: var(--color-primary);
+  color: white;
+  margin-right: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+#preview-pdf:hover,
+#download-pdf:hover {
+  background-color: var(--color-secondary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Botones de tabla */
+.edit-btn {
+  background-color: var(--color-warning);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.85rem;
+  margin-right: var(--spacing-xs);
+}
+
+.edit-btn:hover {
+  background-color: #b87d00;
+  box-shadow: var(--shadow-sm);
+}
+
+.delete-btn {
+  background-color: var(--color-danger);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.85rem;
+}
+
+.delete-btn:hover {
+  background-color: #8b281b;
+  box-shadow: var(--shadow-sm);
+}
+
+
+/* ===================================================== */
+/* 5. SELECTOR DE MES */
+/* ===================================================== */
+
+div > label {
+  font-weight: 600;
+  color: var(--color-text);
+  margin-right: var(--spacing-sm);
+}
+
+select {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: inherit;
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+select:hover {
+  border-color: var(--color-primary);
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26, 77, 122, 0.3);
+}
+
+/* Contenedor del selector */
+div:has(#selector-mes) {
+  background: var(--color-bg-secondary);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  border: 1px solid var(--color-border);
+}
+
+
+/* ===================================================== */
+/* 6. TOTALES DEL MES */
+/* ===================================================== */
+
+#totales-mes {
+  background-color: rgba(26, 127, 74, 0.15);
+  color: #5fda9d;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border-left: 5px solid var(--color-success);
+  margin-bottom: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+
+/* ===================================================== */
+/* 7. TABLA DE REGISTROS */
+/* ===================================================== */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin-top: var(--spacing-md);
+  border: 1px solid var(--color-border);
+}
+
+thead {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+th {
+  padding: var(--spacing-md);
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.95rem;
+  user-select: none;
+}
+
+th[data-column] {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+th[data-column]:hover {
+  background-color: var(--color-secondary);
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.2s;
+}
+
+tbody tr:hover {
+  background-color: var(--color-bg-tertiary);
+}
+
+td {
+  padding: var(--spacing-md);
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+/* Última columna (acciones) */
+td:last-child {
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Mensaje cuando no hay registros */
+tbody tr td[colspan] {
+  text-align: center;
+  color: #7f8b99;
+  font-style: italic;
+  padding: var(--spacing-lg);
+}
+
+/* Inputs dentro de celdas en modo edición */
+td input[type="date"],
+td input[type="time"],
+td input[type="text"] {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.9rem;
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text);
+}
+
+
+/* ===================================================== */
+/* 8. FOOTER */
+/* ===================================================== */
+
+footer {
+  background-color: var(--color-dark);
+  border-top: 2px solid var(--color-border);
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.footer-section {
+  padding: var(--spacing-md) 0;
+  border-left: 3px solid var(--color-primary);
+  padding-left: var(--spacing-md);
+}
+
+.footer-section h4 {
+  color: var(--color-primary);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.footer-section p {
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: var(--spacing-sm);
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-section li {
+  color: var(--color-text);
+  font-size: 0.9rem;
+  padding: var(--spacing-xs) 0;
+  padding-left: var(--spacing-md);
+  position: relative;
+}
+
+.footer-section li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--color-success);
+  font-weight: bold;
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-lg);
+  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: var(--spacing-lg);
+  padding-right: var(--spacing-lg);
+}
+
+.footer-bottom p {
+  color: #7f8b99;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ===================================================== */
+/* 9. SCROLL BUTTON */
+/* ===================================================== */
+
+#scroll-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  z-index: 1000;
+
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+
+  /* Animación flotante */
+  animation: float 3s ease-in-out infinite;
+}
+
+/* SVG */
+#scroll-btn svg {
+  width: 26px;
+  height: 26px;
+  transition: transform 0.3s ease;
+}
+
+/* Hover */
+#scroll-btn:hover svg {
+  transform: translateY(-4px);
+}
+
+#scroll-btn:active {
+  transform: scale(0.92);
+}
+
+/* Animación aparición */
+#scroll-btn.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Animación flotante suave */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+/* 🌙 Modo Oscuro automático */
+@media (prefers-color-scheme: dark) {
+  #scroll-btn {
+    background: rgba(28, 28, 30, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f2f2f7;
+    box-shadow:
+      0 6px 20px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  #scroll-btn:hover {
+    background: rgba(44, 44, 46, 0.95);
+  }
+}
+
+/* ☀️ Modo Claro automático */
+@media (prefers-color-scheme: light) {
+  #scroll-btn {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: #1c1c1e;
+    box-shadow:
+      0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  #scroll-btn:hover {
+    background: rgba(240, 240, 240, 0.95);
+  }
+}
+
+/* ===================================================== */
+/* 10. RESPONSIVE */
+/* ===================================================== */
+
+@media (max-width: 768px) {
+  body {
+    padding: var(--spacing-md);
+  }
+  
+  form {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+  
+  .form-group:has(input[type="date"]),
+  .form-group:has(input[type="text"]),
+  .form-group:has(input[type="time"]) {
+    grid-column: 1 !important;
+  }
+  
+  input[type="date"],
+  input[type="time"],
+  input[type="text"] {
+    max-width: 100%;
+  }
+  
+  form button[type="submit"] {
+    max-width: 100%;
+  }
+  
+  table {
+    font-size: 0.85rem;
+  }
+  
+  th,
+  td {
+    padding: var(--spacing-sm);
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  #preview-pdf,
+  #download-pdf {
+    margin-right: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.9rem;
+  }
+  
+  .edit-btn,
+  .delete-btn {
+    padding: var(--spacing-xs) var(--spacing-xs);
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: var(--spacing-sm);
+  }
+  
+  table {
+    font-size: 0.8rem;
+  }
+  
+  th,
+  td {
+    padding: var(--spacing-xs);
+  }
+  
+  h2 {
+    font-size: 1.3rem;
+  }
+  
+  .footer-content {
+    grid-template-columns: 1fr;
+    padding: 0 var(--spacing-md);
+  }
+  
+  .footer-section {
+    padding-left: var(--spacing-md);
+  }
+  
+  .footer-bottom {
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+}
