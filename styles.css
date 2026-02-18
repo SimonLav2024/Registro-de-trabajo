@@ -259,6 +259,30 @@ form button[type="submit"]:active {
   box-shadow: var(--shadow-sm);
 }
 
+/* Boton del calendario */
+.calendar {
+  display: flex;
+  justify-content: center;
+}
+
+.calendar button {
+  background-color: var(--color-primary);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  margin: 25px;
+  font-size: 0.9rem;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.calendar button:hover {
+  background-color: var(--color-secondary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
 
 /* ===================================================== */
 /* 5. SELECTOR DE MES */
@@ -400,6 +424,7 @@ td input[type="text"] {
   background-color: var(--color-bg-tertiary);
   color: var(--color-text);
 }
+
 
 
 /* ===================================================== */

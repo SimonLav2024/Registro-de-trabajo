@@ -213,6 +213,69 @@ function generarPdfRegistros(registros, download = false, preview = true, mes = 
   }
 }
 
+// =====================================================
+// CALCULO HORAS TEORICAS MES - ANDALUCIA
+// =====================================================
+
+async function calcularHorasFaltantes(registrosMes, mesSeleccionado) {
+
+  if (!mesSeleccionado) return;
+
+  const [year, month] = mesSeleccionado.split('-').map(Number);
+
+  // Obtener festivos nacionales España desde API pública
+  const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/ES`);
+  const holidays = await response.json();
+
+  const festivos = new Set(
+    holidays.map(h => h.date)
+  );
+
+  const diasDelMes = new Date(year, month, 0).getDate();
+
+  let diasLaborables = 0;
+
+  for (let d = 1; d <= diasDelMes; d++) {
+    const fecha = new Date(year, month - 1, d);
+    const diaSemana = fecha.getDay();
+    const fechaStr = fecha.toISOString().slice(0, 10);
+
+    if (diaSemana !== 0 && diaSemana !== 6 && !festivos.has(fechaStr)) {
+      diasLaborables++;
+    }
+  }
+
+  const horasTeoricas = diasLaborables * 8;
+
+  let horasTrabajadas = 0;
+  registrosMes.forEach(r => {
+    horasTrabajadas += Number(r.horas_totales) || 0;
+  });
+
+  const faltan = horasTeoricas - horasTrabajadas;
+
+  let info = document.getElementById('horas-faltantes');
+
+  if (!info) {
+    info = document.createElement('div');
+    info.id = 'horas-faltantes';
+    info.style.marginTop = '8px';
+    info.style.fontWeight = 'bold';
+    document.getElementById('totales-mes').after(info);
+  }
+
+  if (faltan > 0) {
+    info.textContent = `Te faltan ${faltan} horas para completar el mes.`;
+    info.style.color = 'darkred';
+  } else if (faltan < 0) {
+    info.textContent = `Has hecho ${Math.abs(faltan)} horas extra este mes.`;
+    info.style.color = 'green';
+  } else {
+    info.textContent = `Has completado exactamente las horas del mes.`;
+    info.style.color = 'blue';
+  }
+}
+
 
 // =====================================================
 // 4. FUNCIÓN PRINCIPAL DE CARGA DE DATOS
@@ -285,6 +348,8 @@ async function cargarRegistros() {
   // ---- PASO 2: FILTRAR REGISTROS POR MES SELECCIONADO ----
   const registrosMes = data.filter(r => r.fecha.startsWith(mesSeleccionado));
   registrosMesActual = registrosMes; // Guardar para exportación PDF
+  calcularHorasFaltantes(registrosMes, mesSeleccionado);
+
 
   // ---- PASO 3: GENERAR PDF AUTOMÁTICO SI ES ÚLTIMO DÍA DEL MES ----
   if (esUltimoDia()) {
@@ -556,6 +621,7 @@ tabla.addEventListener('click', async e => {
       behavior: "smooth"
     });
   });
+
 
 // =====================================================
 // 7. INICIALIZACIÓN - EJECUTARSE AL CARGAR LA PÁGINA
