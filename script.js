@@ -23,6 +23,60 @@ const tabla = document.getElementById("tabla-registros");
 
 
 // =====================================================
+// 1.2 AUTENTICACIÓN
+// =====================================================
+
+/**
+ * Comprueba si hay sesión activa al cargar la página
+ * Si hay sesión: muestra la app directamente
+ * Si no hay sesión: muestra pantalla de login
+ */
+async function comprobarSesion() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+  if (session) {
+    mostrarApp();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+}
+
+/**
+ * Oculta login y muestra la app principal
+ */
+function mostrarApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+  cargarRegistros();
+}
+
+/**
+ * Evento: botón de login
+ * Autentica con Supabase usando email y contraseña
+ */
+document.getElementById('login-btn').addEventListener('click', async () => {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    document.getElementById('login-error').style.display = 'block';
+    return;
+  }
+
+  mostrarApp();
+});
+
+// Arrancar comprobando sesión
+comprobarSesion();
+
+
+
+// =====================================================
 // 2. GESTIÓN DE ESTADO
 // =====================================================
 
@@ -177,12 +231,12 @@ function generarPdfRegistros(registros, download = false, preview = true, mes = 
   });
 
   // ---- AÑADIR TOTAL DE HORAS AL FINAL DE LA TABLA ----
-  const finalY = doc.lastAutoTable.finalY || 30;
+  // const finalY = doc.lastAutoTable.finalY || 30;
 
-  doc.setFontSize(13);
-  doc.setFont(undefined, 'bold');
-  doc.text(`Total de horas del mes: ${totalMes} h`, 14, finalY + 10);
-  doc.setFont(undefined, 'normal');
+  // doc.setFontSize(13);
+  // doc.setFont(undefined, 'bold');
+  // doc.text(`Total de horas del mes: ${totalMes} h`, 14, finalY + 10);
+  // doc.setFont(undefined, 'normal');
 
   // Establecer propiedades del documento
   doc.setProperties({ title: nombre });
@@ -517,25 +571,31 @@ document.getElementById('download-pdf').addEventListener('click', () => {
  * 
  * A) CLIC EN "MODIFICAR":
  *    1. Guarda ID de fila en edición
- *    2. Convierte celdas en inputs editable
+ *    2. Convierte celdas en inputs editables
  *    3. Cambia botón a "Guardar"
  * 
  * B) CLIC EN "GUARDAR":
- *    1. Obtiene valores nuevos de los inputs
- *    2. Actualiza registro en Supabase
- *    3. Recarga tabla para mostrar cambios
+ *    1. Valida que todos los campos estén rellenos
+ *    2. Obtiene valores nuevos de los inputs
+ *    3. Actualiza registro en Supabase
+ *    4. Recarga tabla para mostrar cambios
  * 
  * C) CLIC EN "BORRAR":
  *    1. Solicita confirmación al usuario
  *    2. Si confirma: elimina registro de Supabase
  *    3. Recarga tabla
+ * 
+ * CORRECCIÓN: Se añade .trim() en las comparaciones de textContent para evitar
+ * fallos por espacios invisibles al cambiar el texto del botón entre
+ * "Modificar" y "Guardar". También se añade console.error para ver
+ * el detalle del error de Supabase en consola (F12) si la actualización falla.
  */
 tabla.addEventListener('click', async e => {
   if (e.target.classList.contains('edit-btn')) {
     const btn = e.target;
     const row = btn.closest('tr');
     
-    if (btn.textContent === 'Modificar') {
+    if (btn.textContent.trim() === 'Modificar') {
       // ---- ENTRAR EN MODO EDICIÓN ----
       editingId = btn.dataset.id;
       const fecha = btn.dataset.fecha;
@@ -543,7 +603,7 @@ tabla.addEventListener('click', async e => {
       const salida = btn.dataset.salida;
       const lugar = btn.dataset.lugar;
       
-      // Convertir celdas a inputs
+      // Convertir celdas a inputs editables
       row.cells[0].innerHTML = `<input type="date" value="${fecha}">`;
       row.cells[1].innerHTML = `<input type="time" value="${entrada.slice(0, 5)}">`;
       row.cells[2].innerHTML = `<input type="time" value="${salida.slice(0, 5)}">`;
@@ -552,7 +612,7 @@ tabla.addEventListener('click', async e => {
       // Cambiar texto del botón
       btn.textContent = 'Guardar';
       
-    } else if (btn.textContent === 'Guardar') {
+    } else if (btn.textContent.trim() === 'Guardar') {
       // ---- GUARDAR CAMBIOS ----
       const row2 = btn.closest('tr');
       const inputs = row2.querySelectorAll('input');
@@ -561,6 +621,12 @@ tabla.addEventListener('click', async e => {
       const newEntrada = inputs[1].value;
       const newSalida = inputs[2].value;
       const newLugar = inputs[3].value;
+
+      // Validación: todos los campos deben estar rellenos antes de guardar
+      if (!newFecha || !newEntrada || !newSalida || !newLugar) {
+        alert('Por favor completa todos los campos antes de guardar');
+        return;
+      }
       
       // Actualizar en Supabase
       const { data: updateData, error: updateError } = await supabaseClient
@@ -571,14 +637,16 @@ tabla.addEventListener('click', async e => {
           hora_salida: newSalida,
           lugar_trabajo: newLugar
         })
-        .eq('id', editingId);
+        .eq('id', editingId)
+        .select(); // Necesario para que Supabase ejecute el update correctamente
       
       if (updateError) {
-        alert('Error al actualizar');
+        console.error('Error al actualizar:', updateError);
+        alert('Error al actualizar: ' + updateError.message);
         return;
       }
       
-      // Limpiar estado y recargar
+      // Limpiar estado y recargar tabla
       editingId = null;
       cargarRegistros();
     }
@@ -622,9 +690,18 @@ tabla.addEventListener('click', async e => {
     });
   });
 
+ /**
+ * Evento: botón de cerrar sesión
+ * Cierra la sesión en Supabase y muestra la pantalla de login
+ */
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  await supabaseClient.auth.signOut();
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+});
 
 // =====================================================
 // 7. INICIALIZACIÓN - EJECUTARSE AL CARGAR LA PÁGINA
 // =====================================================
 
-cargarRegistros();
+// cargarRegistros();

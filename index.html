@@ -18,6 +18,21 @@
 <!-- ===================================================== -->
 <body>
 
+
+<!-- PANTALLA DE LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h2>Iniciar sesión</h2>
+    <input id="login-email" type="email" placeholder="Email">
+    <input id="login-password" type="password" placeholder="Contraseña">
+    <button id="login-btn">Entrar</button>
+    <p id="login-error">Email o contraseña incorrectos</p>
+  </div>
+</div>
+
+<!-- CONTENIDO PRINCIPAL (oculto hasta hacer login) -->
+<div id="main-content" style="display:none;">
+
   <!-- =========== SECCIÓN 1: FORMULARIO DE ENTRADA =========== -->
   <h2>Registrar Jornada</h2>
 
@@ -80,7 +95,7 @@
           <th data-column="lugar_trabajo">Lugar</th>
           <th data-column="horas_totales">Horas Totales</th>
           <!-- Columna de acciones (modificar/borrar) -->
-          <th>Acciones</th>
+          <th></th>
         </tr>
       </thead>
       <!-- Cuerpo dinámico (se llena con JavaScript) -->
@@ -111,6 +126,9 @@
     </svg>
   </button>
 
+  <!-- =============== BOTON DE CIERRE DE SESION ================ -->
+  <button id="logout-btn">Cerrar sesión</button>
+
   <!-- =========== FOOTER =========== -->
   <!-- Pie de página con información y créditos -->
   <footer>
@@ -119,7 +137,7 @@
         <h4>Registro de Trabajo</h4>
         <p>Sistema de gestión y control de horas de trabajo con exportación a PDF</p>
       </div>
-      <div class="footer-section">
+      <!-- <div class="footer-section">
         <h4>Características</h4>
         <ul>
           <li>Registrar jornadas de trabajo</li>
@@ -127,10 +145,10 @@
           <li>Exportar a PDF</li>
           <li>Editar y eliminar registros</li>
         </ul>
-      </div>
+      </div> -->
       <div class="footer-section">
         <h4>Información</h4>
-        <p><strong>Versión:</strong> 2.0</p>
+        <p><strong>Versión:</strong> 3.0</p>
         <p><strong>Tecnología:</strong> Supabase + jsPDF</p>
       </div>
     </div>
@@ -139,6 +157,8 @@
       <p>&copy; 2026 Registro de Trabajo. Realizado por SLS. Todos los derechos reservados.</p>
     </div>
   </footer>
+
+</div>
 
   <!-- ===================================================== -->
   <!-- 3. SCRIPTS - LIBRERÍAS EXTERNAS Y APLICACIÓN -->
