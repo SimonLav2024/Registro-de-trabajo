@@ -267,6 +267,143 @@ function generarPdfRegistros(registros, download = false, preview = true, mes = 
   }
 }
 
+/**
+ * Genera un PDF de resumen con horas trabajadas y horas restantes del mes
+ */
+async function generarPdfResumen(registros, download = false, preview = true, mes = null) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const mesParaNombre = mes || new Date().toISOString().slice(0, 7);
+  const [year, month] = mesParaNombre.split('-').map(Number);
+  const fecha = new Date(year, month - 1);
+  const nombreMesTexto = fecha.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+  const nombre = `Resumen de horas del mes de ${nombreMesTexto}.pdf`;
+
+  // ---- OBTENER FESTIVOS Y CALCULAR HORAS TEORICAS ----
+  let festivos = new Set();
+  let festivosMes = [];
+  try {
+    const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/ES`);
+    const holidays = await response.json();
+    festivos = new Set(holidays.map(h => h.date));
+    festivosMes = holidays
+      .filter(h => h.date.startsWith(`${year}-${String(month).padStart(2, '0')}`))
+      .map(h => {
+        const d = new Date(h.date);
+        const fechaFormateada = d.toLocaleDateString('es-ES', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+        return [fechaFormateada, h.localName || h.name];
+      });
+  } catch (e) {}
+
+  const diasDelMes = new Date(year, month, 0).getDate();
+  let diasLaborables = 0;
+
+  for (let d = 1; d <= diasDelMes; d++) {
+    const f = new Date(year, month - 1, d);
+    const diaSemana = f.getDay();
+    const fechaStr = f.toISOString().slice(0, 10);
+    if (diaSemana !== 0 && diaSemana !== 6 && !festivos.has(fechaStr)) {
+      diasLaborables++;
+    }
+  }
+
+  const horasTeoricas = diasLaborables * 8;
+  const horasTrabajadas = registros.reduce((t, r) => t + (Number(r.horas_totales) || 0), 0);
+  const diferencia = horasTeoricas - horasTrabajadas;
+
+  // ---- TITULO ----
+  doc.setFontSize(18);
+  doc.setFont(undefined, 'bold');
+  doc.text('Resumen de Horas', 105, 18, { align: 'center' });
+  doc.setFontSize(13);
+  doc.setFont(undefined, 'normal');
+  doc.text(nombreMesTexto.charAt(0).toUpperCase() + nombreMesTexto.slice(1), 105, 26, { align: 'center' });
+
+  // ---- BLOQUE RESUMEN PRINCIPAL ----
+  doc.autoTable({
+    startY: 38,
+    head: [['Concepto', 'Valor']],
+    body: [
+      ['Dias laborables del mes', `${diasLaborables} dias`],
+      ['Horas teoricas del mes (8h/dia)', `${horasTeoricas} h`],
+      ['Horas trabajadas', `${horasTrabajadas} h`],
+      [
+        diferencia > 0 ? 'Horas restantes por trabajar' : diferencia < 0 ? 'Horas extra realizadas' : 'Estado',
+        diferencia > 0 ? `${diferencia} h` : diferencia < 0 ? `${Math.abs(diferencia)} h` : 'Mes completado exactamente'
+      ],
+    ],
+    styles: { fontSize: 11, cellPadding: 5 },
+    headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+    columnStyles: { 0: { fontStyle: 'bold' }, 1: { halign: 'center' } },
+    didParseCell: function (data) {
+      if (data.row.index === 3) {
+        if (diferencia > 0) {
+          data.cell.styles.textColor = [150, 0, 0];
+          data.cell.styles.fontStyle = 'bold';
+        } else if (diferencia < 0) {
+          data.cell.styles.textColor = [0, 120, 0];
+          data.cell.styles.fontStyle = 'bold';
+        } else {
+          data.cell.styles.textColor = [0, 0, 180];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+    }
+  });
+
+  // ---- FESTIVOS DEL MES ----
+  const yFestivos = doc.lastAutoTable.finalY + 10;
+  doc.setFontSize(12);
+  doc.setFont(undefined, 'bold');
+  doc.setTextColor(0);
+  doc.text('Festivos del mes', 14, yFestivos);
+  doc.setFont(undefined, 'normal');
+
+  let yDespuesFestivos;
+  if (festivosMes.length > 0) {
+    doc.autoTable({
+      startY: yFestivos + 4,
+      head: [['Fecha', 'Festivo']],
+      body: festivosMes,
+      styles: { fontSize: 10, cellPadding: 4 },
+      headStyles: { fillColor: [231, 76, 60], textColor: 255, fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 75 }, 1: { cellWidth: 105 } },
+    });
+    yDespuesFestivos = doc.lastAutoTable.finalY;
+  } else {
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text('No hay festivos nacionales este mes.', 14, yFestivos + 10);
+    yDespuesFestivos = yFestivos + 10;
+  }
+
+  // ---- NOTA AL PIE ----
+  doc.setFontSize(9);
+  doc.setTextColor(120);
+  doc.text(
+    `Generado el ${new Date().toLocaleDateString('es-ES')} - Festivos nacionales Espana incluidos`,
+    105, yDespuesFestivos + 14, { align: 'center' }
+  );
+
+  // ---- OUTPUT ----
+  doc.setProperties({ title: nombre });
+  const blob = doc.output('blob');
+  const blobUrl = URL.createObjectURL(blob);
+
+  if (preview) window.open(blobUrl, '_blank');
+
+  if (download) {
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = blobUrl;
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(blobUrl); document.body.removeChild(a); }, 1000);
+  }
+}
+
 // =====================================================
 // CALCULO HORAS TEORICAS MES - ANDALUCIA
 // =====================================================
@@ -557,6 +694,24 @@ document.getElementById('preview-pdf').addEventListener('click', () => {
 document.getElementById('download-pdf').addEventListener('click', () => {
   if (registrosMesActual && registrosMesActual.length) {
     generarPdfRegistros(registrosMesActual, true, false, mesSeleccionado);
+  } else {
+    alert('No hay datos para exportar');
+  }
+});
+
+// ---- EVENTO: BOTÓN "VER PDF RESUMEN" ----
+document.getElementById('preview-pdf-resumen').addEventListener('click', () => {
+  if (registrosMesActual && registrosMesActual.length) {
+    generarPdfResumen(registrosMesActual, false, true, mesSeleccionado);
+  } else {
+    alert('No hay datos para exportar');
+  }
+});
+
+// ---- EVENTO: BOTÓN "DESCARGAR PDF RESUMEN" ----
+document.getElementById('download-pdf-resumen').addEventListener('click', () => {
+  if (registrosMesActual && registrosMesActual.length) {
+    generarPdfResumen(registrosMesActual, true, false, mesSeleccionado);
   } else {
     alert('No hay datos para exportar');
   }
