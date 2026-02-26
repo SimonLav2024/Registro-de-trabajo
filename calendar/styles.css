@@ -1,4 +1,3 @@
-
 /* Fondo de toda la página en modo oscuro */
 body {
   background-color: #0f1621;
@@ -11,7 +10,6 @@ body {
   margin: 0;
 }
 
-/* h1 */
 .h1 {
   color: #1a4d7a;
   font-size: 1.8rem;
@@ -23,91 +21,293 @@ hr {
   border-top: 3px solid #1a4d7a;
   width: 100%;
   max-width: 1200px;
-  margin-bottom: 100px;
+  margin-bottom: 40px;
 }
 
-/* Contenedor del calendario */
+/* ===================== CALENDARIO ===================== */
+
 #dark-calendario {
   width: 100%;
   max-width: 900px;
   background-color: #1a2332;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
 }
 
-/* Encabezado con botones */
-#dark-calendario .header {
+/* ---- HEADER ---- */
+#dark-calendario .cal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
-#dark-calendario .header h2 {
+#dark-calendario .cal-titulo {
+  text-align: center;
+}
+
+#dark-calendario .cal-titulo h2 {
   margin: 0;
+  font-size: 1.5rem;
+  color: #e0e0e0;
 }
 
-#dark-calendario .header button {
+#dark-calendario .cal-subtitulo {
+  font-size: 0.75rem;
+  color: #7f8b99;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#dark-calendario .cal-header button {
   background: #1a4d7a;
   color: white;
   border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   cursor: pointer;
-  transition: 0.2s;
-  font-size: 14px;
+  font-size: 22px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.1s;
 }
 
-#dark-calendario .header button:hover {
-  background-color: #1a4d7a;
-  opacity: 0.8;
+#dark-calendario .cal-header button:hover {
+  background-color: #2563a8;
+  transform: scale(1.1);
 }
 
-/* Días de la semana */
-#dark-calendario .dias-semana,
-#dark-calendario .dias {
+/* ---- LEYENDA ---- */
+#dark-calendario .cal-leyenda {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: #aaa;
+  justify-content: center;
+}
+
+#dark-calendario .leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+#dark-calendario .leyenda-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+#dark-calendario .hoy-color      { background-color: #1a4d7a; }
+#dark-calendario .festivo-color  { background-color: #c0392b; }
+#dark-calendario .finde-color    { background-color: #2c3e50; }
+#dark-calendario .laboral-color  { background-color: #243447; }
+
+/* ---- DÍAS DE LA SEMANA ---- */
+#dark-calendario .dias-semana {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
-  font-size: 14px;
+  font-size: 13px;
+  margin-bottom: 4px;
+  gap: 3px;
 }
 
 #dark-calendario .dias-semana div {
   font-weight: bold;
-  padding: 10px 0;
-  background-color: rgba(26, 127, 74, 0.15);
-  border-radius: 4px;
+  padding: 8px 0;
+  background-color: rgba(26, 127, 74, 0.12);
+  border-radius: 6px;
+  color: #aac4e0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Días del mes */
+#dark-calendario .dias-semana .finde-header {
+  background-color: rgba(44, 62, 80, 0.5);
+  color: #7f9ab5;
+}
+
+/* ---- GRID DE DÍAS ---- */
+#dark-calendario .dias {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
 #dark-calendario .dias div {
-  padding: 18px 0;
-  border: 1px solid rgba(26, 127, 74, 0.15);
+  min-height: 58px;
+  padding: 6px 4px 4px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: 0.2s;
-  border-radius: 4px;
+  transition: filter 0.15s, transform 0.1s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #dark-calendario .dias div:hover {
-  background-color: #3333ff22;
+  filter: brightness(1.25);
+  transform: scale(1.04);
+  z-index: 1;
 }
 
-/* Día actual */
-#dark-calendario .hoy {
-  background-color: #1a4d7a;
-  color: white;
-  font-weight: bold;
+#dark-calendario .num-dia {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
-/* Festivos nacionales */
+/* ---- TIPOS DE DÍA ---- */
+
+/* Laborable */
+#dark-calendario .laborable {
+  background-color: #1e2d3d;
+  color: #cdd8e3;
+}
+
+/* Fin de semana */
+#dark-calendario .finde {
+  background-color: #18222e;
+  color: #5c7a96;
+}
+
+/* Festivo en fin de semana */
+#dark-calendario .finde-festivo {
+  background-color: #1e1a2e;
+  color: #7c6aaa;
+}
+
+/* Festivo laborable */
 #dark-calendario .festivo {
-  background-color: #e53935;
-  color: white;
-  font-weight: bold;
+  background-color: #3b1414;
+  color: #f5a5a5;
+  border: 1px solid #7a2020;
 }
 
-/* Footer */
+#dark-calendario .etiqueta-festivo {
+  font-size: 9px;
+  color: #f5a5a5;
+  text-align: center;
+  line-height: 1.2;
+  margin-top: 2px;
+  max-width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Hoy */
+#dark-calendario .hoy {
+  background-color: #1a4d7a !important;
+  color: white !important;
+  border: 2px solid #4a9edd !important;
+  box-shadow: 0 0 10px rgba(74, 158, 221, 0.4);
+}
+
+#dark-calendario .hoy .num-dia {
+  color: white;
+}
+
+/* Días de otro mes */
+#dark-calendario .dia-otro-mes {
+  background-color: transparent;
+  color: #2e3e50;
+  cursor: default;
+}
+
+#dark-calendario .dia-otro-mes:hover {
+  filter: none;
+  transform: none;
+}
+
+/* ---- LISTA DE FESTIVOS DEL MES ---- */
+#dark-calendario .cal-festivos-lista {
+  margin-top: 20px;
+  background-color: #1e1a2e;
+  border-radius: 10px;
+  padding: 14px 18px;
+  border-left: 3px solid #c0392b;
+}
+
+#dark-calendario .cal-festivos-lista h4 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #f5a5a5;
+}
+
+#dark-calendario .cal-festivos-lista ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#dark-calendario .cal-festivos-lista li {
+  font-size: 12px;
+  color: #ccc;
+  background-color: #2a1f2f;
+  padding: 5px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#dark-calendario .festivo-bullet {
+  width: 8px;
+  height: 8px;
+  background-color: #c0392b;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+#cal-tooltip {
+  position: fixed;
+  background-color: #c0392b;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 9999;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+#cal-tooltip.visible {
+  opacity: 1;
+}
+
+/* ---- FOOTER DEL CALENDARIO ---- */
+#dark-calendario .cal-footer {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 12px;
+  color: #4a6070;
+  padding-top: 12px;
+  border-top: 1px solid #1e2d3d;
+}
+
+/* ===================== FOOTER PÁGINA ===================== */
+
 footer {
   border-top: 2px solid var(--color-border, #333);
   padding-top: var(--spacing-xl, 20px);
@@ -133,25 +333,47 @@ footer {
   margin: 0;
 }
 
-/* Adaptacion a pantallas pequeñas */
+/* ===================== RESPONSIVE ===================== */
+
 @media (max-width: 768px) {
   #dark-calendario {
-    padding: 10px;
+    padding: 12px;
   }
 
   #dark-calendario .dias div {
-    padding: 10px 0;
-    font-size: 12px;
+    min-height: 42px;
+    padding: 4px 2px;
+  }
+
+  #dark-calendario .num-dia {
+    font-size: 13px;
+  }
+
+  #dark-calendario .etiqueta-festivo {
+    display: none;
+  }
+
+  #dark-calendario .cal-leyenda {
+    gap: 10px;
+    font-size: 11px;
   }
 }
 
 @media (max-width: 480px) {
-  #dark-calendario .header h2 {
-    font-size: 18px;
+  #dark-calendario .cal-titulo h2 {
+    font-size: 1.1rem;
   }
 
-  #dark-calendario .header button {
-    padding: 6px 10px;
-    font-size: 12px;
+  #dark-calendario .dias-semana div {
+    font-size: 10px;
+    padding: 6px 0;
+  }
+
+  #dark-calendario .dias div {
+    min-height: 34px;
+  }
+
+  #dark-calendario .num-dia {
+    font-size: 11px;
   }
 }
