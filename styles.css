@@ -233,6 +233,21 @@ form button[type="submit"]:active {
   transform: translateY(-2px);
 }
 
+#preview-pdf-resumen,
+#download-pdf-resumen {
+  background-color: var(--color-primary);
+  color: white;
+  margin-right: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+#preview-pdf-resumen:hover,
+#download-pdf-resumen:hover {
+  background-color: var(--color-secondary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
 /* Botones de tabla */
 .edit-btn {
   background-color: var(--color-warning);
