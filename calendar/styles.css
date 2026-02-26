@@ -313,8 +313,7 @@ footer {
   padding-top: var(--spacing-xl, 20px);
   padding-bottom: var(--spacing-lg, 15px);
   width: 100%;
-  position: fixed;
-  bottom: 0;
+  margin-top: 40px;
 }
 
 .footer-bottom {
