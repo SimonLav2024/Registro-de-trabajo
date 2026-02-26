@@ -280,22 +280,71 @@ async function generarPdfResumen(registros, download = false, preview = true, me
   const nombreMesTexto = fecha.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
   const nombre = `Resumen de horas del mes de ${nombreMesTexto}.pdf`;
 
-  // ---- OBTENER FESTIVOS Y CALCULAR HORAS TEORICAS ----
-  let festivos = new Set();
-  let festivosMes = [];
-  try {
-    const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/ES`);
-    const holidays = await response.json();
-    festivos = new Set(holidays.map(h => h.date));
-    festivosMes = holidays
-      .filter(h => h.date.startsWith(`${year}-${String(month).padStart(2, '0')}`))
-      .map(h => {
-        const d = new Date(h.date);
-        const fechaFormateada = d.toLocaleDateString('es-ES', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
-        return [fechaFormateada, h.localName || h.name];
-      });
-  } catch (e) {}
+  // ---- FESTIVOS GRANADA (nacionales + autonómicos + locales) ----
+  // Datos oficiales hardcodeados, sin depender de la API
+  const FESTIVOS_GRANADA = {
+    "2026": {
+      "2026-01-01": "Año Nuevo",
+      "2026-01-02": "Toma de Granada (local)",
+      "2026-01-06": "Epifanía del Señor (Reyes)",
+      "2026-02-28": "Día de Andalucía",
+      "2026-04-02": "Jueves Santo",
+      "2026-04-03": "Viernes Santo",
+      "2026-05-01": "Día del Trabajo",
+      "2026-06-04": "Corpus Christi (local)",
+      "2026-08-15": "Asunción de la Virgen",
+      "2026-10-12": "Fiesta Nacional de España",
+      "2026-11-02": "Todos los Santos (traslado)",
+      "2026-12-07": "Día de la Constitución (traslado)",
+      "2026-12-08": "Inmaculada Concepción",
+      "2026-12-25": "Navidad",
+    },
+    "2025": {
+      "2025-01-01": "Año Nuevo",
+      "2025-01-06": "Epifanía del Señor (Reyes)",
+      "2025-02-28": "Día de Andalucía",
+      "2025-04-17": "Jueves Santo",
+      "2025-04-18": "Viernes Santo",
+      "2025-05-01": "Día del Trabajo",
+      "2025-06-19": "Corpus Christi (local)",
+      "2025-08-15": "Asunción de la Virgen",
+      "2025-10-12": "Fiesta Nacional de España",
+      "2025-11-01": "Todos los Santos",
+      "2025-12-06": "Día de la Constitución",
+      "2025-12-08": "Inmaculada Concepción",
+      "2025-12-25": "Navidad",
+    }
+  };
 
+  // Obtener festivos del año o fallback a la API
+  let festivosMap = {};
+  const anioStr = String(year);
+  if (FESTIVOS_GRANADA[anioStr]) {
+    festivosMap = FESTIVOS_GRANADA[anioStr];
+  } else {
+    try {
+      const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/ES`);
+      const holidays = await response.json();
+      holidays.forEach(h => { festivosMap[h.date] = h.localName || h.name; });
+    } catch (e) {}
+  }
+
+  const festivos = new Set(Object.keys(festivosMap));
+
+  // Festivos del mes con fecha formateada, nombre y tipo
+  const festivosMes = Object.entries(festivosMap)
+    .filter(([f]) => f.startsWith(`${year}-${String(month).padStart(2, '0')}`))
+    .map(([f, nombreFestivo]) => {
+      const d = new Date(f);
+      const diaSemana = d.getDay();
+      const esFinde = diaSemana === 0 || diaSemana === 6;
+      const fechaFormateada = d.toLocaleDateString('es-ES', {
+        weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric'
+      });
+      return [fechaFormateada, nombreFestivo, esFinde ? 'Cae en fin de semana' : 'Cae en laborable. Festivo'];
+    });
+
+  // ---- CALCULAR DÍAS LABORABLES ----
   const diasDelMes = new Date(year, month, 0).getDate();
   let diasLaborables = 0;
 
@@ -312,7 +361,7 @@ async function generarPdfResumen(registros, download = false, preview = true, me
   const horasTrabajadas = registros.reduce((t, r) => t + (Number(r.horas_totales) || 0), 0);
   const diferencia = horasTeoricas - horasTrabajadas;
 
-  // ---- TITULO ----
+  // ---- TÍTULO ----
   doc.setFontSize(18);
   doc.setFont(undefined, 'bold');
   doc.text('Resumen de Horas', 105, 18, { align: 'center' });
@@ -325,8 +374,8 @@ async function generarPdfResumen(registros, download = false, preview = true, me
     startY: 38,
     head: [['Concepto', 'Valor']],
     body: [
-      ['Dias laborables del mes', `${diasLaborables} dias`],
-      ['Horas teoricas del mes (8h/dia)', `${horasTeoricas} h`],
+      ['Días laborables del mes', `${diasLaborables} días`],
+      ['Horas teóricas del mes (8h/día)', `${horasTeoricas} h`],
       ['Horas trabajadas', `${horasTrabajadas} h`],
       [
         diferencia > 0 ? 'Horas restantes por trabajar' : diferencia < 0 ? 'Horas extra realizadas' : 'Estado',
@@ -364,17 +413,32 @@ async function generarPdfResumen(registros, download = false, preview = true, me
   if (festivosMes.length > 0) {
     doc.autoTable({
       startY: yFestivos + 4,
-      head: [['Fecha', 'Festivo']],
+      head: [['Fecha', 'Festivo', 'Tipo']],
       body: festivosMes,
       styles: { fontSize: 10, cellPadding: 4 },
       headStyles: { fillColor: [231, 76, 60], textColor: 255, fontStyle: 'bold' },
-      columnStyles: { 0: { cellWidth: 75 }, 1: { cellWidth: 105 } },
+      columnStyles: {
+        0: { cellWidth: 70 },
+        1: { cellWidth: 90 },
+        2: { cellWidth: 30, halign: 'center' }
+      },
+      didParseCell: function (data) {
+        if (data.column.index === 2 && data.section === 'body') {
+          if (data.cell.raw === 'Fin de semana') {
+            data.cell.styles.textColor = [150, 150, 150];
+            data.cell.styles.fontSize = 8;
+          } else {
+            data.cell.styles.textColor = [180, 0, 0];
+            data.cell.styles.fontStyle = 'bold';
+          }
+        }
+      }
     });
     yDespuesFestivos = doc.lastAutoTable.finalY;
   } else {
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text('No hay festivos nacionales este mes.', 14, yFestivos + 10);
+    doc.text('No hay festivos este mes.', 14, yFestivos + 10);
     yDespuesFestivos = yFestivos + 10;
   }
 
@@ -382,7 +446,7 @@ async function generarPdfResumen(registros, download = false, preview = true, me
   doc.setFontSize(9);
   doc.setTextColor(120);
   doc.text(
-    `Generado el ${new Date().toLocaleDateString('es-ES')} - Festivos nacionales Espana incluidos`,
+    `Generado el ${new Date().toLocaleDateString('es-ES')} · Resumen de horas trabajadas · Festivos nacionales, autonómicos y locales de Granada`,
     105, yDespuesFestivos + 14, { align: 'center' }
   );
 
