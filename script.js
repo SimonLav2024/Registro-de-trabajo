@@ -516,7 +516,7 @@ async function calcularHorasFaltantes(registrosMes, mesSeleccionado) {
     info.id = 'horas-faltantes';
     info.style.marginTop = '8px';
     info.style.fontWeight = 'bold';
-    document.getElementById('totales-mes').after(info);
+    // document.getElementById('totales-mes').after(info);
   }
 
   if (faltan > 0) {
@@ -607,21 +607,21 @@ async function cargarRegistros() {
 
 
   // ---- PASO 3: GENERAR PDF AUTOMÁTICO SI ES ÚLTIMO DÍA DEL MES ----
-  if (esUltimoDia()) {
-    generarPdfRegistros(registrosMes, true, true, mesSeleccionado);
-  }
+  // if (esUltimoDia()) {
+  //   generarPdfRegistros(registrosMes, true, true, mesSeleccionado);
+  // }
 
   // ---- PASO 4: CALCULAR Y MOSTRAR TOTALES DEL MES ----
-  let totalMes = 0;
-  registrosMes.forEach(r => {
-    totalMes += r.horas_totales || 0;
-  });
+  // let totalMes = 0;
+  // registrosMes.forEach(r => {
+  //   totalMes += r.horas_totales || 0;
+  // });
   
-  const [year, month] = mesSeleccionado.split('-');
-  const fecha = new Date(year, parseInt(month, 10) - 1);
-  const nombreMes = fecha.toLocaleString('es-ES', { month: 'long' });
-  document.getElementById('totales-mes').textContent = 
-    `Horas totales del mes de ${nombreMes} del ${year} => ${totalMes}h`;
+  // const [year, month] = mesSeleccionado.split('-');
+  // const fecha = new Date(year, parseInt(month, 10) - 1);
+  // const nombreMes = fecha.toLocaleString('es-ES', { month: 'long' });
+  // document.getElementById('totales-mes').textContent = 
+  //   `Horas totales del mes de ${nombreMes} del ${year} => ${totalMes}h`;
 
   // ---- PASO 5: MOSTRAR REGISTROS DEL MES EN TABLA ----
   if (registrosMes.length === 0) {
