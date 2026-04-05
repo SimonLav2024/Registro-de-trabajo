@@ -231,12 +231,12 @@ function generarPdfRegistros(registros, download = false, preview = true, mes = 
   });
 
   // ---- AÑADIR TOTAL DE HORAS AL FINAL DE LA TABLA ----
-  // const finalY = doc.lastAutoTable.finalY || 30;
+   const finalY = doc.lastAutoTable.finalY || 30;
 
-  // doc.setFontSize(13);
-  // doc.setFont(undefined, 'bold');
-  // doc.text(`Total de horas del mes: ${totalMes} h`, 14, finalY + 10);
-  // doc.setFont(undefined, 'normal');
+  doc.setFontSize(13);
+  doc.setFont(undefined, 'bold');
+  doc.text(`Total de horas del mes: ${totalMes} h`, 14, finalY + 10);
+  doc.setFont(undefined, 'normal');
 
   // Establecer propiedades del documento
   doc.setProperties({ title: nombre });
