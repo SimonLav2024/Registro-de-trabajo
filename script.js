@@ -711,7 +711,7 @@ formulario.addEventListener("submit", async (e) => {
         lugar_trabajo: lugar,
         horas_totales: horas_totales
       }
-    ]);
+    ]).select();
 
   // Limpiar formulario y recargar tabla
   formulario.reset();
