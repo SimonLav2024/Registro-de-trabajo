@@ -125,6 +125,29 @@ let mesSeleccionado = new Date().toISOString().slice(0, 7);
 // =====================================================
 
 /**
+ * Calcula las horas totales entre entrada y salida
+ * Soporta turnos nocturnos que cruzan la medianoche
+ * @param {string} entrada - Hora de entrada en formato HH:MM
+ * @param {string} salida  - Hora de salida en formato HH:MM
+ * @return {number} Total de horas trabajadas (con decimales)
+ */
+function calcularHorasTotales(entrada, salida) {
+  const [hE, mE] = entrada.split(':').map(Number);
+  const [hS, mS] = salida.split(':').map(Number);
+
+  let minutosEntrada = hE * 60 + mE;
+  let minutosSalida = hS * 60 + mS;
+
+  // Si la salida es igual o anterior a la entrada, el turno cruzó medianoche
+  if (minutosSalida <= minutosEntrada) {
+    minutosSalida += 24 * 60;
+  }
+
+  const totalMinutos = minutosSalida - minutosEntrada;
+  return parseFloat((totalMinutos / 60).toFixed(2));
+}
+
+/**
  * Convierte una fecha en string a nombre del día en español capitalizado
  * @param {string} fechaStr - Fecha en formato YYYY-MM-DD
  * @return {string} Nombre del día (ej: "Lunes", "Martes", etc.)
@@ -662,9 +685,10 @@ async function cargarRegistros() {
  * Proceso:
  * 1. Previene recarga de página por defecto
  * 2. Obtiene valores de inputs (fecha, entrada, salida, lugar)
- * 3. Inserta en tabla 'registros_trabajo'
- * 4. Limpia formulario
- * 5. Recarga tabla para mostrar nuevo registro
+ * 3. Calcula horas totales (con soporte para turnos nocturnos)
+ * 4. Inserta en tabla 'registros_trabajo'
+ * 5. Limpia formulario
+ * 6. Recarga tabla para mostrar nuevo registro
  */
 formulario.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -674,6 +698,9 @@ formulario.addEventListener("submit", async (e) => {
   const salida = document.getElementById("salida").value;
   const lugar = document.getElementById("lugar").value;
 
+  // Calcular horas totales correctamente, incluso si el turno cruza medianoche
+  const horas_totales = calcularHorasTotales(entrada, salida);
+
   const { data: insertData, error: insertError } = await supabaseClient
     .from("registros_trabajo")
     .insert([
@@ -681,7 +708,8 @@ formulario.addEventListener("submit", async (e) => {
         fecha: fecha,
         hora_entrada: entrada,
         hora_salida: salida,
-        lugar_trabajo: lugar
+        lugar_trabajo: lugar,
+        horas_totales: horas_totales
       }
     ]);
 
@@ -796,8 +824,9 @@ document.getElementById('download-pdf-resumen').addEventListener('click', () => 
  * B) CLIC EN "GUARDAR":
  *    1. Valida que todos los campos estén rellenos
  *    2. Obtiene valores nuevos de los inputs
- *    3. Actualiza registro en Supabase
- *    4. Recarga tabla para mostrar cambios
+ *    3. Recalcula horas totales (con soporte para turnos nocturnos)
+ *    4. Actualiza registro en Supabase
+ *    5. Recarga tabla para mostrar cambios
  * 
  * C) CLIC EN "BORRAR":
  *    1. Solicita confirmación al usuario
@@ -846,6 +875,9 @@ tabla.addEventListener('click', async e => {
         alert('Por favor completa todos los campos antes de guardar');
         return;
       }
+
+      // Recalcular horas totales correctamente, incluso si el turno cruza medianoche
+      const horas_totales = calcularHorasTotales(newEntrada, newSalida);
       
       // Actualizar en Supabase
       const { data: updateData, error: updateError } = await supabaseClient
@@ -854,7 +886,8 @@ tabla.addEventListener('click', async e => {
           fecha: newFecha,
           hora_entrada: newEntrada,
           hora_salida: newSalida,
-          lugar_trabajo: newLugar
+          lugar_trabajo: newLugar,
+          horas_totales: horas_totales
         })
         .eq('id', editingId)
         .select(); // Necesario para que Supabase ejecute el update correctamente
