@@ -12,6 +12,8 @@
   --color-success: #1a7f4a;
   --color-danger: #c1392b;
   --color-warning: #d99a00;
+  --color-fiesta: #8c28a0;
+  --color-descanso: #7a7a7a;
   --color-light: #1a2332;
   --color-dark: #0f1621;
   --color-border: #354557;
@@ -128,6 +130,45 @@ form {
 /* Botón ocupa ambas columnas */
 form button[type="submit"] {
   grid-column: 1 / -1;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.form-actions button {
+  flex: 1 1 180px;
+  max-width: 260px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+#descanso-btn {
+  background-color: var(--color-descanso);
+  color: white;
+}
+
+#descanso-btn:hover {
+  background-color: #5a5a5a;
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+#festivo-btn {
+  background-color: var(--color-fiesta);
+  color: white;
+}
+
+#festivo-btn:hover {
+  background-color: #6d1c7d;
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
 }
 
 /* Estilos de labels */

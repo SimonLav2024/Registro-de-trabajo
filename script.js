@@ -119,6 +119,55 @@ let registrosMesActual = [];
  */
 let mesSeleccionado = new Date().toISOString().slice(0, 7);
 
+/**
+ * Festivos de Granada (nacionales + autonómicos + locales) para años conocidos.
+ * Usado tanto en el resumen de la aplicación como en el PDF.
+ */
+const FESTIVOS_GRANADA = {
+  "2026": {
+    "2026-01-01": "Año Nuevo",
+    "2026-01-02": "Toma de Granada (local)",
+    "2026-01-06": "Epifanía del Señor (Reyes)",
+    "2026-02-28": "Día de Andalucía",
+    "2026-04-02": "Jueves Santo",
+    "2026-04-03": "Viernes Santo",
+    "2026-05-01": "Día del Trabajo",
+    "2026-06-04": "Corpus Christi (local)",
+    "2026-08-15": "Asunción de la Virgen",
+    "2026-10-12": "Fiesta Nacional de España",
+    "2026-11-02": "Todos los Santos (traslado)",
+    "2026-12-07": "Día de la Constitución (traslado)",
+    "2026-12-08": "Inmaculada Concepción",
+    "2026-12-25": "Navidad",
+  },
+  "2025": {
+    "2025-01-01": "Año Nuevo",
+    "2025-01-06": "Epifanía del Señor (Reyes)",
+    "2025-02-28": "Día de Andalucía",
+    "2025-04-17": "Jueves Santo",
+    "2025-04-18": "Viernes Santo",
+    "2025-05-01": "Día del Trabajo",
+    "2025-06-19": "Corpus Christi (local)",
+    "2025-08-15": "Asunción de la Virgen",
+    "2025-10-12": "Fiesta Nacional de España",
+    "2025-11-01": "Todos los Santos",
+    "2025-12-06": "Día de la Constitución",
+    "2025-12-08": "Inmaculada Concepción",
+    "2025-12-25": "Navidad",
+  }
+};
+
+/**
+ * Devuelve el mapa de festivos para un año dado.
+ * Usa únicamente la lista local de Granada.
+ * @param {number} year
+ * @return {Promise<Object>} Mapa { fecha: nombreFestivo }
+ */
+async function obtenerFestivosPorAño(year) {
+  const anioStr = String(year);
+  return FESTIVOS_GRANADA[anioStr] || {};
+}
+
 
 // =====================================================
 // 3. FUNCIONES AUXILIARES - FORMATEO Y VALIDACIÓN
@@ -145,6 +194,82 @@ function calcularHorasTotales(entrada, salida) {
 
   const totalMinutos = minutosSalida - minutosEntrada;
   return parseFloat((totalMinutos / 60).toFixed(2));
+}
+
+/**
+ * Escapa texto para inserción segura en HTML.
+ * @param {string} text
+ * @return {string}
+ */
+function escapeHtml(text) {
+  if (text == null) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Valida que una fecha tiene formato YYYY-MM-DD y corresponde a una fecha real.
+ * @param {string} fecha
+ * @return {boolean}
+ */
+function esFechaValida(fecha) {
+  if (!fecha || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(fecha)) return false;
+  const date = new Date(fecha);
+  return date instanceof Date && !isNaN(date) && date.toISOString().slice(0, 10) === fecha;
+}
+
+/**
+ * Valida que una hora tiene formato HH:MM y está en el rango 00:00-23:59.
+ * @param {string} hora
+ * @return {boolean}
+ */
+function esHoraValida(hora) {
+  return /^([01]\d|2[0-3]):([0-5]\d)$/.test(hora);
+}
+
+/**
+ * Normaliza texto para eliminar espacios excesivos y saltos de línea.
+ * @param {string} texto
+ * @return {string}
+ */
+function normalizarTexto(texto) {
+  return String(texto || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Valida un registro antes de guardarlo o actualizarlo.
+ * @param {Object} registro
+ * @return {string|null} Mensaje de error o null si es válido
+ */
+function validarRegistro({ fecha, entrada, salida, lugar }) {
+  if (!fecha || !entrada || !salida || !lugar) {
+    return 'Por favor completa todos los campos antes de guardar.';
+  }
+
+  if (!esFechaValida(fecha)) {
+    return 'La fecha no es válida. Usa el formato YYYY-MM-DD.';
+  }
+
+  if (!esHoraValida(entrada) || !esHoraValida(salida)) {
+    return 'Las horas deben tener formato HH:MM y ser válidas.';
+  }
+
+  if (lugar.length > 120) {
+    return 'El lugar no puede tener más de 120 caracteres.';
+  }
+
+  const horas_totales = calcularHorasTotales(entrada, salida);
+  if (!Number.isFinite(horas_totales)) {
+    return 'Por favor, introduce horas de entrada y salida válidas.';
+  }
+
+  return null;
 }
 
 /**
@@ -311,55 +436,7 @@ async function generarPdfResumen(registros, download = false, preview = true, me
   const nombreMesTexto = fecha.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
   const nombre = `Resumen de horas del mes de ${nombreMesTexto}.pdf`;
 
-  // ---- FESTIVOS GRANADA (nacionales + autonómicos + locales) ----
-  // Datos oficiales hardcodeados, sin depender de la API
-  const FESTIVOS_GRANADA = {
-    "2026": {
-      "2026-01-01": "Año Nuevo",
-      "2026-01-02": "Toma de Granada (local)",
-      "2026-01-06": "Epifanía del Señor (Reyes)",
-      "2026-02-28": "Día de Andalucía",
-      "2026-04-02": "Jueves Santo",
-      "2026-04-03": "Viernes Santo",
-      "2026-05-01": "Día del Trabajo",
-      "2026-06-04": "Corpus Christi (local)",
-      "2026-08-15": "Asunción de la Virgen",
-      "2026-10-12": "Fiesta Nacional de España",
-      "2026-11-02": "Todos los Santos (traslado)",
-      "2026-12-07": "Día de la Constitución (traslado)",
-      "2026-12-08": "Inmaculada Concepción",
-      "2026-12-25": "Navidad",
-    },
-    "2025": {
-      "2025-01-01": "Año Nuevo",
-      "2025-01-06": "Epifanía del Señor (Reyes)",
-      "2025-02-28": "Día de Andalucía",
-      "2025-04-17": "Jueves Santo",
-      "2025-04-18": "Viernes Santo",
-      "2025-05-01": "Día del Trabajo",
-      "2025-06-19": "Corpus Christi (local)",
-      "2025-08-15": "Asunción de la Virgen",
-      "2025-10-12": "Fiesta Nacional de España",
-      "2025-11-01": "Todos los Santos",
-      "2025-12-06": "Día de la Constitución",
-      "2025-12-08": "Inmaculada Concepción",
-      "2025-12-25": "Navidad",
-    }
-  };
-
-  // Obtener festivos del año o fallback a la API
-  let festivosMap = {};
-  const anioStr = String(year);
-  if (FESTIVOS_GRANADA[anioStr]) {
-    festivosMap = FESTIVOS_GRANADA[anioStr];
-  } else {
-    try {
-      const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/ES`);
-      const holidays = await response.json();
-      holidays.forEach(h => { festivosMap[h.date] = h.localName || h.name; });
-    } catch (e) {}
-  }
-
+  const festivosMap = await obtenerFestivosPorAño(year);
   const festivos = new Set(Object.keys(festivosMap));
 
   // Festivos del mes con fecha formateada, nombre y tipo
@@ -509,13 +586,8 @@ async function calcularHorasFaltantes(registrosMes, mesSeleccionado) {
 
   const [year, month] = mesSeleccionado.split('-').map(Number);
 
-  // Obtener festivos nacionales España desde API pública
-  const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/ES`);
-  const holidays = await response.json();
-
-  const festivos = new Set(
-    holidays.map(h => h.date)
-  );
+  const festivosMap = await obtenerFestivosPorAño(year);
+  const festivos = new Set(Object.keys(festivosMap));
 
   const diasDelMes = new Date(year, month, 0).getDate();
 
@@ -524,7 +596,7 @@ async function calcularHorasFaltantes(registrosMes, mesSeleccionado) {
   for (let d = 1; d <= diasDelMes; d++) {
     const fecha = new Date(year, month - 1, d);
     const diaSemana = fecha.getDay();
-    const fechaStr = fecha.toISOString().slice(0, 10);
+    const fechaStr = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
 
     if (diaSemana !== 0 && diaSemana !== 6 && !festivos.has(fechaStr)) {
       diasLaborables++;
@@ -643,16 +715,17 @@ async function cargarRegistros() {
   // }
 
   // ---- PASO 4: CALCULAR Y MOSTRAR TOTALES DEL MES ----
-  // let totalMes = 0;
-  // registrosMes.forEach(r => {
-  //   totalMes += r.horas_totales || 0;
-  // });
-  
-  // const [year, month] = mesSeleccionado.split('-');
-  // const fecha = new Date(year, parseInt(month, 10) - 1);
-  // const nombreMes = fecha.toLocaleString('es-ES', { month: 'long' });
-  // document.getElementById('totales-mes').textContent = 
-  //   `Horas totales del mes de ${nombreMes} del ${year} => ${totalMes}h`;
+  let totalMes = 0;
+  registrosMes.forEach(r => {
+    totalMes += obtenerHorasRegistro(r);
+  });
+  totalMes = parseFloat(totalMes.toFixed(2));
+
+  const [year, month] = mesSeleccionado.split('-');
+  const fecha = new Date(year, parseInt(month, 10) - 1);
+  const nombreMes = fecha.toLocaleString('es-ES', { month: 'long' });
+  document.getElementById('totales-mes').textContent = 
+    `Horas totales del mes de ${nombreMes} de ${year}: ${totalMes} h`;
 
   // ---- PASO 5: MOSTRAR REGISTROS DEL MES EN TABLA ----
   if (registrosMes.length === 0) {
@@ -664,16 +737,18 @@ async function cargarRegistros() {
     const dia = nombreDiaSemana(registro.fecha);
     const fechaFormateada = formatearFecha(registro.fecha);
     const totalHorasRegistro = obtenerHorasRegistro(registro);
+    const lugarSeguro = escapeHtml(registro.lugar_trabajo);
+    const dataLugarSeguro = escapeHtml(registro.lugar_trabajo);
     
     const fila = `
       <tr>
         <td>${fechaFormateada} ${dia ? '(' + dia + ')' : ''}</td>
         <td>${formatearHora(registro.hora_entrada)}</td>
         <td>${formatearHora(registro.hora_salida)}</td>
-        <td>${registro.lugar_trabajo}</td>
+        <td>${lugarSeguro}</td>
         <td>${totalHorasRegistro}</td>
         <td>
-          <button class="edit-btn" data-id="${registro.id}" data-fecha="${registro.fecha}" data-entrada="${registro.hora_entrada}" data-salida="${registro.hora_salida}" data-lugar="${registro.lugar_trabajo}">Modificar</button>
+          <button class="edit-btn" data-id="${registro.id}" data-fecha="${registro.fecha}" data-entrada="${registro.hora_entrada}" data-salida="${registro.hora_salida}" data-lugar="${dataLugarSeguro}">Modificar</button>
           <button class="delete-btn" data-id="${registro.id}">Borrar</button>
         </td>
       </tr>
@@ -705,19 +780,12 @@ formulario.addEventListener("submit", async (e) => {
   const fecha = document.getElementById("fecha").value;
   const entrada = document.getElementById("entrada").value;
   const salida = document.getElementById("salida").value;
-  const lugar = document.getElementById("lugar").value;
+  const lugar = normalizarTexto(document.getElementById("lugar").value);
+  document.getElementById("lugar").value = lugar;
 
-  // Validación básica de campos
-  if (!fecha || !entrada || !salida || !lugar) {
-    alert('Por favor completa todos los campos antes de guardar');
-    return;
-  }
-
-  // Calcular horas totales correctamente, incluso si el turno cruza medianoche
-  const horas_totales = calcularHorasTotales(entrada, salida);
-
-  if (!Number.isFinite(horas_totales)) {
-    alert('Por favor, introduce horas de entrada y salida válidas.');
+  const valida = validarRegistro({ fecha, entrada, salida, lugar });
+  if (valida) {
+    alert(valida);
     return;
   }
 
@@ -742,6 +810,42 @@ formulario.addEventListener("submit", async (e) => {
   formulario.reset();
   cargarRegistros();
 });
+
+/**
+ * Crea un registro de 0 horas para el día seleccionado.
+ * @param {string} tipo - 'Descanso' o 'Festivo'
+ */
+async function agregarDiaCeroHoras(tipo) {
+  const fecha = document.getElementById("fecha").value;
+
+  if (!esFechaValida(fecha)) {
+    alert('Selecciona una fecha válida antes de registrar un día de ' + tipo.toLowerCase() + '.');
+    return;
+  }
+
+  const { error: insertError } = await supabaseClient
+    .from("registros_trabajo")
+    .insert([
+      {
+        fecha: fecha,
+        hora_entrada: '00:00',
+        hora_salida: '00:00',
+        lugar_trabajo: tipo
+      }
+    ], { returning: 'representation' });
+
+  if (insertError) {
+    console.error(`Error al insertar ${tipo}:`, insertError);
+    alert('No se pudo guardar el día de ' + tipo.toLowerCase() + '. Revisa la consola para más detalles.');
+    return;
+  }
+
+  formulario.reset();
+  cargarRegistros();
+}
+
+document.getElementById('descanso-btn').addEventListener('click', () => agregarDiaCeroHoras('Descanso'));
+document.getElementById('festivo-btn').addEventListener('click', () => agregarDiaCeroHoras('Festivo'));
 
 // ---- 5.2 EVENTO: ORDENACIÓN POR CLIC EN ENCABEZADOS ----
 /**
@@ -875,12 +979,13 @@ tabla.addEventListener('click', async e => {
       const entrada = btn.dataset.entrada;
       const salida = btn.dataset.salida;
       const lugar = btn.dataset.lugar;
+      const lugarInput = escapeHtml(lugar);
       
       // Convertir celdas a inputs editables
       row.cells[0].innerHTML = `<input type="date" value="${fecha}">`;
       row.cells[1].innerHTML = `<input type="time" value="${entrada.slice(0, 5)}">`;
       row.cells[2].innerHTML = `<input type="time" value="${salida.slice(0, 5)}">`;
-      row.cells[3].innerHTML = `<input type="text" value="${lugar}">`;
+      row.cells[3].innerHTML = `<input type="text" value="${lugarInput}">`;
       
       // Cambiar texto del botón
       btn.textContent = 'Guardar';
@@ -893,19 +998,11 @@ tabla.addEventListener('click', async e => {
       const newFecha = inputs[0].value;
       const newEntrada = inputs[1].value;
       const newSalida = inputs[2].value;
-      const newLugar = inputs[3].value;
+      const newLugar = normalizarTexto(inputs[3].value);
 
-      // Validación: todos los campos deben estar rellenos antes de guardar
-      if (!newFecha || !newEntrada || !newSalida || !newLugar) {
-        alert('Por favor completa todos los campos antes de guardar');
-        return;
-      }
-
-      // Recalcular horas totales correctamente, incluso si el turno cruza medianoche
-      const horas_totales = calcularHorasTotales(newEntrada, newSalida);
-      
-      if (!Number.isFinite(horas_totales)) {
-        alert('Por favor, introduce horas de entrada y salida válidas.');
+      const valida = validarRegistro({ fecha: newFecha, entrada: newEntrada, salida: newSalida, lugar: newLugar });
+      if (valida) {
+        alert(valida);
         return;
       }
       
