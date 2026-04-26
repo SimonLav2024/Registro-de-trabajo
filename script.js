@@ -709,7 +709,7 @@ formulario.addEventListener("submit", async (e) => {
         hora_entrada: entrada,
         hora_salida: salida,
         lugar_trabajo: lugar,
-        horas_totales: horas_totales
+        horas_totales: Number(horas_totales)
       }
     ])
     .select();
