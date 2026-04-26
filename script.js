@@ -888,7 +888,7 @@ tabla.addEventListener('click', async e => {
           hora_entrada: newEntrada,
           hora_salida: newSalida,
           lugar_trabajo: newLugar,
-          horas_totales: horas_totales
+          horas_totales: Number (horas_totales)
         })
         .eq('id', editingId)
         .select(); // Necesario para que Supabase ejecute el update correctamente
