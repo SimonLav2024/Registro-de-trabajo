@@ -459,7 +459,7 @@ async function generarPdfResumen(registros, download = false, preview = true, me
   for (let d = 1; d <= diasDelMes; d++) {
     const f = new Date(year, month - 1, d);
     const diaSemana = f.getDay();
-    const fechaStr = f.toISOString().slice(0, 10);
+    const fechaStr = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`;
     if (diaSemana !== 0 && diaSemana !== 6 && !festivos.has(fechaStr)) {
       diasLaborables++;
     }
