@@ -148,6 +148,20 @@ function calcularHorasTotales(entrada, salida) {
 }
 
 /**
+ * Obtiene las horas de un registro usando el valor generado si es válido,
+ * o recalculando desde hora_entrada/hora_salida cuando el valor generado es inválido.
+ * @param {Object} registro - Registro con hora_entrada, hora_salida y horas_totales
+ * @return {number} Horas trabajadas del registro
+ */
+function obtenerHorasRegistro(registro) {
+  const total = Number(registro.horas_totales);
+  if (!Number.isFinite(total) || total < 0) {
+    return calcularHorasTotales(registro.hora_entrada, registro.hora_salida);
+  }
+  return total;
+}
+
+/**
  * Convierte una fecha en string a nombre del día en español capitalizado
  * @param {string} fechaStr - Fecha en formato YYYY-MM-DD
  * @return {string} Nombre del día (ej: "Lunes", "Martes", etc.)
@@ -224,25 +238,19 @@ function generarPdfRegistros(registros, download = false, preview = true, mes = 
   const cabecera = ['Fecha', 'Día', 'Entrada', 'Salida', 'Lugar', 'Horas'];
 
   // Definir total de horas del mes sumando 'horas_totales' de cada registro
-  const totalMes = registros.reduce((total, r) => total + (Number(r.horas_totales) || 0), 0);
+  const totalMes = registros.reduce((total, r) => total + obtenerHorasRegistro(r), 0);
   
   // Mapear registros a filas de tabla
   const filas = registros.map(r => {
-
-    // ---- CALCULAR TOTAL DE HORAS DEL MES ----
-    let totalMes = 0;
-    registros.forEach(r => {
-      totalMes += Number(r.horas_totales) || 0;
-    });
-
     const dia = nombreDiaSemana(r.fecha);
+    const totalHorasRegistro = obtenerHorasRegistro(r);
     return [
       r.fecha,
       dia,
       r.hora_entrada.slice(0, 5),
       r.hora_salida.slice(0, 5),
       r.lugar_trabajo,
-      r.horas_totales ?? ''
+      totalHorasRegistro
     ];
   });
   
@@ -381,7 +389,7 @@ async function generarPdfResumen(registros, download = false, preview = true, me
   }
 
   const horasTeoricas = diasLaborables * 8;
-  const horasTrabajadas = registros.reduce((t, r) => t + (Number(r.horas_totales) || 0), 0);
+  const horasTrabajadas = registros.reduce((t, r) => t + obtenerHorasRegistro(r), 0);
   const diferencia = horasTeoricas - horasTrabajadas;
 
   // ---- TÍTULO ----
@@ -527,7 +535,7 @@ async function calcularHorasFaltantes(registrosMes, mesSeleccionado) {
 
   let horasTrabajadas = 0;
   registrosMes.forEach(r => {
-    horasTrabajadas += Number(r.horas_totales) || 0;
+    horasTrabajadas += obtenerHorasRegistro(r);
   });
 
   const faltan = horasTeoricas - horasTrabajadas;
@@ -655,6 +663,7 @@ async function cargarRegistros() {
   registrosMes.forEach(registro => {
     const dia = nombreDiaSemana(registro.fecha);
     const fechaFormateada = formatearFecha(registro.fecha);
+    const totalHorasRegistro = obtenerHorasRegistro(registro);
     
     const fila = `
       <tr>
@@ -662,7 +671,7 @@ async function cargarRegistros() {
         <td>${formatearHora(registro.hora_entrada)}</td>
         <td>${formatearHora(registro.hora_salida)}</td>
         <td>${registro.lugar_trabajo}</td>
-        <td>${registro.horas_totales ?? "-"}</td>
+        <td>${totalHorasRegistro}</td>
         <td>
           <button class="edit-btn" data-id="${registro.id}" data-fecha="${registro.fecha}" data-entrada="${registro.hora_entrada}" data-salida="${registro.hora_salida}" data-lugar="${registro.lugar_trabajo}">Modificar</button>
           <button class="delete-btn" data-id="${registro.id}">Borrar</button>
@@ -698,8 +707,19 @@ formulario.addEventListener("submit", async (e) => {
   const salida = document.getElementById("salida").value;
   const lugar = document.getElementById("lugar").value;
 
+  // Validación básica de campos
+  if (!fecha || !entrada || !salida || !lugar) {
+    alert('Por favor completa todos los campos antes de guardar');
+    return;
+  }
+
   // Calcular horas totales correctamente, incluso si el turno cruza medianoche
   const horas_totales = calcularHorasTotales(entrada, salida);
+
+  if (!Number.isFinite(horas_totales)) {
+    alert('Por favor, introduce horas de entrada y salida válidas.');
+    return;
+  }
 
   const { data: insertData, error: insertError } = await supabaseClient
     .from("registros_trabajo")
@@ -710,8 +730,13 @@ formulario.addEventListener("submit", async (e) => {
         hora_salida: salida,
         lugar_trabajo: lugar
       }
-    ])
-    .select();
+    ], { returning: 'representation' });
+
+  if (insertError) {
+    console.error('Error al insertar registro:', insertError);
+    alert('No se pudo guardar el registro. Revisa la consola para más detalles.');
+    return;
+  }
 
   // Limpiar formulario y recargar tabla
   formulario.reset();
@@ -879,6 +904,11 @@ tabla.addEventListener('click', async e => {
       // Recalcular horas totales correctamente, incluso si el turno cruza medianoche
       const horas_totales = calcularHorasTotales(newEntrada, newSalida);
       
+      if (!Number.isFinite(horas_totales)) {
+        alert('Por favor, introduce horas de entrada y salida válidas.');
+        return;
+      }
+      
       // Actualizar en Supabase
       const { data: updateData, error: updateError } = await supabaseClient
         .from('registros_trabajo')
@@ -886,11 +916,9 @@ tabla.addEventListener('click', async e => {
           fecha: newFecha,
           hora_entrada: newEntrada,
           hora_salida: newSalida,
-          lugar_trabajo: newLugar,
-          horas_totales: horas_totales
-        })
-        .eq('id', editingId)
-        .select(); // Necesario para que Supabase ejecute el update correctamente
+          lugar_trabajo: newLugar
+        }, { returning: 'representation' })
+        .eq('id', editingId);
       
       if (updateError) {
         console.error('Error al actualizar:', updateError);
