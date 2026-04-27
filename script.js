@@ -761,6 +761,7 @@ async function cargarRegistros() {
     `;
     tabla.innerHTML += fila;
   });
+
 }
 
 
