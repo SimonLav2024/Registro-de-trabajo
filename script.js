@@ -612,25 +612,30 @@ async function calcularHorasFaltantes(registrosMes, mesSeleccionado) {
 
   const faltan = horasTeoricas - horasTrabajadas;
 
+  const totalesMes = document.getElementById('totales-mes');
   let info = document.getElementById('horas-faltantes');
 
   if (!info) {
     info = document.createElement('div');
     info.id = 'horas-faltantes';
+    info.className = 'horas-faltantes';
     info.style.marginTop = '8px';
-    info.style.fontWeight = 'bold';
-    // document.getElementById('totales-mes').after(info);
+    totalesMes.appendChild(info);
+  } else if (info.parentNode !== totalesMes) {
+    totalesMes.appendChild(info);
   }
+
+  info.classList.remove('faltan', 'extra', 'completo');
 
   if (faltan > 0) {
     info.textContent = `Te faltan ${faltan} horas para completar el mes.`;
-    info.style.color = 'darkred';
+    info.classList.add('faltan');
   } else if (faltan < 0) {
     info.textContent = `Has hecho ${Math.abs(faltan)} horas extra este mes.`;
-    info.style.color = 'green';
+    info.classList.add('extra');
   } else {
     info.textContent = `Has completado exactamente las horas del mes.`;
-    info.style.color = 'blue';
+    info.classList.add('completo');
   }
 }
 
@@ -699,14 +704,13 @@ async function cargarRegistros() {
   // Manejar caso de tabla vacía
   if (!data || data.length === 0) {
     tabla.innerHTML = '<tr><td colspan="5">No hay registros</td></tr>';
-    document.getElementById('totales-mes').textContent = '';
+    document.getElementById('totales-mes').innerHTML = '';
     return;
   }
 
   // ---- PASO 2: FILTRAR REGISTROS POR MES SELECCIONADO ----
   const registrosMes = data.filter(r => r.fecha.startsWith(mesSeleccionado));
   registrosMesActual = registrosMes; // Guardar para exportación PDF
-  calcularHorasFaltantes(registrosMes, mesSeleccionado);
 
 
   // ---- PASO 3: GENERAR PDF AUTOMÁTICO SI ES ÚLTIMO DÍA DEL MES ----
@@ -726,6 +730,8 @@ async function cargarRegistros() {
   const nombreMes = fecha.toLocaleString('es-ES', { month: 'long' });
   document.getElementById('totales-mes').textContent = 
     `Horas totales del mes de ${nombreMes} de ${year}: ${totalMes} h`;
+
+  calcularHorasFaltantes(registrosMes, mesSeleccionado);
 
   // ---- PASO 5: MOSTRAR REGISTROS DEL MES EN TABLA ----
   if (registrosMes.length === 0) {

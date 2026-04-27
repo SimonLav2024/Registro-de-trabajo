@@ -258,6 +258,33 @@ form button[type="submit"]:active {
   transform: translateY(0);
 }
 
+#totales-mes {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+#totales-mes .horas-faltantes {
+  margin-top: var(--spacing-sm);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+
+#totales-mes .horas-faltantes.faltan {
+  color: #e74c3c;
+}
+
+#totales-mes .horas-faltantes.extra {
+  color: var(--color-success);
+}
+
+#totales-mes .horas-faltantes.completo {
+  color: #56ccf2;
+}
+
 /* Botones de PDF */
 #preview-pdf,
 #download-pdf {
