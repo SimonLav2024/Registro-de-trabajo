@@ -796,6 +796,8 @@ formulario.addEventListener("submit", async (e) => {
     return;
   }
 
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
   const { data: insertData, error: insertError } = await supabaseClient
     .from("registros_trabajo")
     .insert([
@@ -803,7 +805,8 @@ formulario.addEventListener("submit", async (e) => {
         fecha: fecha,
         hora_entrada: entrada,
         hora_salida: salida,
-        lugar_trabajo: lugar
+        lugar_trabajo: lugar,
+        user_id: user.id
       }
     ], { returning: 'representation' });
 
@@ -830,16 +833,18 @@ async function agregarDiaCeroHoras(tipo) {
     return;
   }
 
-  const { error: insertError } = await supabaseClient
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  const { data: insertData, error: insertError } = await supabaseClient
     .from("registros_trabajo")
-    .insert([
-      {
-        fecha: fecha,
-        hora_entrada: '00:00',
-        hora_salida: '00:00',
-        lugar_trabajo: tipo
-      }
-    ], { returning: 'representation' });
+    .insert([{
+      fecha: fecha,
+      hora_entrada: '00:00',
+      hora_salida: '00:00',
+      lugar_trabajo: tipo,
+      user_id: user.id
+    }], 
+      { returning: 'representation' });
 
   if (insertError) {
     console.error(`Error al insertar ${tipo}:`, insertError);
