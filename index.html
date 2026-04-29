@@ -18,13 +18,24 @@
 <!-- ===================================================== -->
 <body>
 
-
 <!-- PANTALLA DE LOGIN -->
 <div id="login-screen">
   <div class="login-box">
     <h2>Iniciar sesión</h2>
     <input id="login-email" type="email" placeholder="Email">
-    <input id="login-password" type="password" placeholder="Contraseña">
+    <div class="password-wrapper">
+      <input id="login-password" type="password" placeholder="Contraseña">
+      <button type="button" class="toggle-password" data-target="login-password">
+        <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+      </button>
+      <div class="password-rules" id="rules-login" style="display:none">
+        <span class="rule" data-rule="length">Entre 4 y 12 caracteres</span>
+        <span class="rule" data-rule="upper">Al menos una mayúscula</span>
+        <span class="rule" data-rule="number">Al menos un número</span>
+        <span class="rule" data-rule="nosymbols">Sin símbolos especiales</span>
+      </div>
+    </div>
     <button id="login-btn">Entrar</button>
     <p id="login-error">Email o contraseña incorrectos</p>
   </div>
@@ -35,9 +46,21 @@
   <div class="login-box">
     <h2>Bienvenido</h2>
     <p class="hint">Es tu primera vez. Establece una contraseña para acceder en el futuro.</p>
-    <input type="password" id="new-password" placeholder="Nueva contraseña (mín. 6 caracteres)">
+    <div class="password-wrapper">
+      <input type="password" id="new-password" placeholder="Nueva contraseña">
+      <button type="button" class="toggle-password" data-target="new-password">
+        <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+      </button>
+      <div class="password-rules" id="rules-new" style="display:none">
+        <span class="rule" data-rule="length">Entre 8 y 10 caracteres</span>
+        <span class="rule" data-rule="upper">Al menos una mayúscula</span>
+        <span class="rule" data-rule="number">Al menos un número</span>
+        <span class="rule" data-rule="nosymbols">Sin símbolos especiales</span>
+      </div>
+    </div>
     <button id="set-password-btn">Guardar contraseña</button>
-    <p id="set-password-error">Error al guardar la contraseña. Inténtalo de nuevo.</p>
+    <p id="set-password-error">La contraseña no cumple los requisitos.</p>
     <p id="set-password-ok">¡Contraseña guardada! Accediendo...</p>
   </div>
 </div>
@@ -108,29 +131,23 @@
   </div>
 
   <!-- =========== SECCIÓN 3: TABLA DE REGISTROS =========== -->
-  <!-- Tabla dinámica que muestra todos los registros del mes -->
-   <div class="vista_movil">
+  <div class="vista_movil">
     <table>
       <thead>
         <tr>
-          <!-- Encabezados clickeables para ordenar registros -->
           <th data-column="fecha">Fecha</th>
           <th data-column="hora_entrada">Entrada</th>
           <th data-column="hora_salida">Salida</th>
           <th data-column="lugar_trabajo">Lugar</th>
           <th data-column="horas_totales">Horas Totales</th>
-          <!-- Columna de acciones (modificar/borrar) -->
           <th></th>
         </tr>
       </thead>
-      <!-- Cuerpo dinámico (se llena con JavaScript) -->
       <tbody id="tabla-registros"></tbody>
     </table>
-   </div>
-  
+  </div>
 
   <!-- =========== SECCIÓN 4: TOTALES DEL MES =========== -->
-  <!-- Contenedor para mostrar horas totales del mes seleccionado -->
   <div id="totales-mes"></div>
 
   <!-- =========== SECCIÓN 5: BOTON DEL CALENDARIO =========== -->
@@ -138,9 +155,7 @@
     <button id="calendario" onclick="window.open('calendar/index.html', '_blank')">Calendario</button>
   </div>
 
-
   <!-- =========== BOTÓN FLOTANTE - IR AL FORMULARIO =========== -->
-  <!-- Botón para hacer scroll suave al formulario de entrada -->
   <button id="scroll-btn" title="Ir al formulario">
     <svg viewBox="0 0 24 24">
       <path d="M12 5V19M12 5L6 11M12 5L18 11"
@@ -155,7 +170,6 @@
   <button id="logout-btn">Cerrar sesión</button>
 
   <!-- =========== FOOTER =========== -->
-  <!-- Pie de página con información y créditos -->
   <footer>
     <div class="footer-content">
       <div class="footer-section">
@@ -164,7 +178,7 @@
       </div>
       <div class="footer-section">
         <h4>Información</h4>
-        <p><strong>Versión:</strong> 5.1</p>
+        <p><strong>Versión:</strong> 5.2</p>
         <p><strong>Tecnología:</strong> Supabase + jsPDF</p>
       </div>
     </div>
@@ -180,16 +194,9 @@
   <!-- 3. SCRIPTS - LIBRERÍAS EXTERNAS Y APLICACIÓN -->
   <!-- ===================================================== -->
 
-  <!-- Cliente Supabase para conexión a base de datos -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Librería jsPDF para generación de PDF -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2/dist/jspdf.umd.min.js"></script>
-
-  <!-- Plugin autoTable para tablas en PDF -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3/dist/jspdf.plugin.autotable.min.js"></script>
-
-  <!-- Script principal de la aplicación -->
   <script src="script.js"></script>
 
 </body>

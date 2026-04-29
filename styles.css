@@ -99,14 +99,12 @@ form {
   border: 1px solid var(--color-border);
 }
 
-/* Contenedor de cada campo */
 .form-group {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
 }
 
-/* Posicionar form-groups por tipo de input */
 .form-group:has(input[type="date"]) {
   grid-column: 1;
   grid-row: 1;
@@ -127,7 +125,6 @@ form {
   grid-row: 2;
 }
 
-/* Botón ocupa ambas columnas */
 form button[type="submit"] {
   grid-column: 1 / -1;
 }
@@ -171,7 +168,6 @@ form button[type="submit"] {
   transform: translateY(-2px);
 }
 
-/* Estilos de labels */
 label {
   font-weight: 700;
   color: var(--color-text);
@@ -208,14 +204,6 @@ input[type="text"]::placeholder {
   font-weight: 500;
 }
 
-/* Mejorar visibilidad de text color en inputs */
-input[type="date"],
-input[type="time"],
-input[type="text"] {
-  color: var(--color-text);
-}
-
-/* Placeholder styling para navegadores webkit */
 input[type="time"]::placeholder {
   opacity: 1;
 }
@@ -236,7 +224,6 @@ button {
   font-family: inherit;
 }
 
-/* Botón principal (Guardar) */
 form button[type="submit"] {
   background-color: var(--color-success);
   color: white;
@@ -258,49 +245,8 @@ form button[type="submit"]:active {
   transform: translateY(0);
 }
 
-#totales-mes {
-  margin-top: var(--spacing-lg);
-  padding: var(--spacing-md);
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-}
-
-#totales-mes .horas-faltantes {
-  margin-top: var(--spacing-sm);
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.02em;
-}
-
-#totales-mes .horas-faltantes.faltan {
-  color: #e74c3c;
-}
-
-#totales-mes .horas-faltantes.extra {
-  color: var(--color-success);
-}
-
-#totales-mes .horas-faltantes.completo {
-  color: #56ccf2;
-}
-
-/* Botones de PDF */
 #preview-pdf,
-#download-pdf {
-  background-color: var(--color-primary);
-  color: white;
-  margin-right: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
-}
-
-#preview-pdf:hover,
-#download-pdf:hover {
-  background-color: var(--color-secondary);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
+#download-pdf,
 #preview-pdf-resumen,
 #download-pdf-resumen {
   background-color: var(--color-primary);
@@ -309,6 +255,8 @@ form button[type="submit"]:active {
   margin-bottom: var(--spacing-md);
 }
 
+#preview-pdf:hover,
+#download-pdf:hover,
 #preview-pdf-resumen:hover,
 #download-pdf-resumen:hover {
   background-color: var(--color-secondary);
@@ -316,7 +264,6 @@ form button[type="submit"]:active {
   transform: translateY(-2px);
 }
 
-/* Botones de tabla */
 .edit-btn {
   background-color: var(--color-warning);
   color: white;
@@ -342,7 +289,6 @@ form button[type="submit"]:active {
   box-shadow: var(--shadow-sm);
 }
 
-/* Boton del calendario */
 .calendar {
   display: flex;
   justify-content: center;
@@ -366,7 +312,6 @@ form button[type="submit"]:active {
   transform: translateY(-2px);
 }
 
-/* Boton de cierre de sesión */
 #logout-btn {
   position: fixed;
   top: 16px;
@@ -385,9 +330,6 @@ form button[type="submit"]:active {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
-
-/* graficos */
-/* fin */
 
 
 /* ===================================================== */
@@ -422,7 +364,6 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(26, 77, 122, 0.3);
 }
 
-/* Contenedor del selector */
 div:has(#selector-mes) {
   background: var(--color-bg-secondary);
   padding: var(--spacing-md);
@@ -450,6 +391,25 @@ div:has(#selector-mes) {
   margin-top: var(--spacing-lg);
   font-weight: 600;
   font-size: 1.05rem;
+}
+
+#totales-mes .horas-faltantes {
+  margin-top: var(--spacing-sm);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+
+#totales-mes .horas-faltantes.faltan {
+  color: #e74c3c;
+}
+
+#totales-mes .horas-faltantes.extra {
+  color: var(--color-success);
+}
+
+#totales-mes .horas-faltantes.completo {
+  color: #56ccf2;
 }
 
 
@@ -505,13 +465,11 @@ td {
   color: var(--color-text);
 }
 
-/* Última columna (acciones) */
 td:last-child {
   text-align: center;
   white-space: nowrap;
 }
 
-/* Mensaje cuando no hay registros */
 tbody tr td[colspan] {
   text-align: center;
   color: #7f8b99;
@@ -519,7 +477,6 @@ tbody tr td[colspan] {
   padding: var(--spacing-lg);
 }
 
-/* Inputs dentro de celdas en modo edición */
 td input[type="date"],
 td input[type="time"],
 td input[type="text"] {
@@ -530,7 +487,6 @@ td input[type="text"] {
   background-color: var(--color-bg-tertiary);
   color: var(--color-text);
 }
-
 
 
 /* ===================================================== */
@@ -615,6 +571,7 @@ footer {
   margin: 0;
 }
 
+
 /* ===================================================== */
 /* 9. SCROLL BUTTON */
 /* ===================================================== */
@@ -627,30 +584,23 @@ footer {
   height: 60px;
   border: none;
   border-radius: 50%;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   cursor: pointer;
   z-index: 1000;
-
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.3s ease;
-
-  /* Animación flotante */
   animation: float 3s ease-in-out infinite;
 }
 
-/* SVG */
 #scroll-btn svg {
   width: 26px;
   height: 26px;
   transition: transform 0.3s ease;
 }
 
-/* Hover */
 #scroll-btn:hover svg {
   transform: translateY(-4px);
 }
@@ -659,19 +609,16 @@ footer {
   transform: scale(0.92);
 }
 
-/* Animación aparición */
 #scroll-btn.show {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Animación flotante suave */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-6px); }
 }
 
-/* 🌙 Modo Oscuro automático */
 @media (prefers-color-scheme: dark) {
   #scroll-btn {
     background: rgba(28, 28, 30, 0.85);
@@ -679,9 +626,7 @@ footer {
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     color: #f2f2f7;
-    box-shadow:
-      0 6px 20px rgba(0, 0, 0, 0.6),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }
 
   #scroll-btn:hover {
@@ -689,21 +634,20 @@ footer {
   }
 }
 
-/* ☀️ Modo Claro automático */
 @media (prefers-color-scheme: light) {
   #scroll-btn {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(0, 0, 0, 0.08);
     color: #1c1c1e;
-    box-shadow:
-      0 6px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   }
 
   #scroll-btn:hover {
     background: rgba(240, 240, 240, 0.95);
   }
 }
+
 
 /* ===================================================== */
 /* 10. RESPONSIVE */
@@ -713,48 +657,47 @@ footer {
   body {
     padding: var(--spacing-md);
   }
-  
+
   form {
     grid-template-columns: 1fr;
     max-width: 100%;
   }
-  
+
   .form-group:has(input[type="date"]),
   .form-group:has(input[type="text"]),
   .form-group:has(input[type="time"]) {
     grid-column: 1 !important;
   }
-  
+
   input[type="date"],
   input[type="time"],
   input[type="text"] {
     max-width: 100%;
   }
-  
+
   form button[type="submit"] {
     max-width: 100%;
   }
-  
+
   table {
     font-size: 0.85rem;
   }
-  
-  th,
-  td {
+
+  th, td {
     padding: var(--spacing-sm);
   }
-  
+
   h2 {
     font-size: 1.5rem;
   }
-  
+
   #preview-pdf,
   #download-pdf {
     margin-right: var(--spacing-xs);
     padding: var(--spacing-xs) var(--spacing-sm);
     font-size: 0.9rem;
   }
-  
+
   .edit-btn,
   .delete-btn {
     padding: var(--spacing-xs) var(--spacing-xs);
@@ -766,66 +709,63 @@ footer {
   body {
     padding: var(--spacing-sm);
   }
-  
+
   table {
     font-size: 0.6rem;
   }
-  
+
   .vista_movil {
-    overflow-x: auto;   /* Permite scroll horizontal */
-    -webkit-overflow-scrolling: touch; /* Suaviza el scroll en móviles iOS */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  
-  th,
-  td {
+
+  th, td {
     padding: var(--spacing-xs);
   }
-  
+
   h2 {
     font-size: 1.3rem;
   }
 
   form {
-    grid-template-columns: 1fr; /* Una sola columna */
+    grid-template-columns: 1fr;
     padding: var(--spacing-md);
     gap: var(--spacing-sm);
   }
 
-  /* Quitar posicionamiento manual del grid */
   .form-group {
     grid-column: 1 / -1 !important;
     grid-row: auto !important;
   }
 
-  /* Inputs más cómodos en móvil */
   input[type="date"],
   input[type="time"],
   input[type="text"] {
-    font-size: 16px; /* Evita zoom automático en iOS */
+    font-size: 16px;
     padding: var(--spacing-md);
   }
 
-  /* Botón ancho completo */
   form button[type="submit"] {
     grid-column: 1 / -1;
     width: 100%;
     padding: var(--spacing-md);
   }
-  
+
   .footer-content {
     grid-template-columns: 1fr;
     padding: 0 var(--spacing-md);
   }
-  
+
   .footer-section {
     padding-left: var(--spacing-md);
   }
-  
+
   .footer-bottom {
     padding-left: var(--spacing-md);
     padding-right: var(--spacing-md);
   }
 }
+
 
 /* ===================================================== */
 /* 11. PANTALLA DE LOGIN */
@@ -914,7 +854,6 @@ footer {
   display: none;
 }
 
-/* Responsive login */
 @media (max-width: 480px) {
   .login-box {
     padding: var(--spacing-lg);
@@ -922,62 +861,143 @@ footer {
   }
 }
 
- /* ===================================================== */
-    /* PANTALLA ESTABLECER CONTRASEÑA                        */
-    /* ===================================================== */
-    #set-password-screen {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      gap: var(--spacing-md);
-    }
 
-    #set-password-screen .login-box p.hint {
-      color: #7f8b99;
-      font-size: 0.88rem;
-      text-align: center;
-      margin-top: calc(-1 * var(--spacing-xs));
-    }
+/* ===================================================== */
+/* 12. PANTALLA ESTABLECER CONTRASEÑA                    */
+/* ===================================================== */
 
-    #set-password-error {
-      color: #e57373;
-      background-color: rgba(193, 57, 43, 0.15);
-      border-left: 4px solid var(--color-danger);
-      border-radius: var(--radius-sm);
-      padding: var(--spacing-sm) var(--spacing-md);
-      font-size: 0.9rem;
-      display: none;
-    }
+#set-password-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: var(--spacing-md);
+}
 
-    #set-password-ok {
-      color: #5fda9d;
-      background-color: rgba(26, 127, 74, 0.15);
-      border-left: 4px solid var(--color-success);
-      border-radius: var(--radius-sm);
-      padding: var(--spacing-sm) var(--spacing-md);
-      font-size: 0.9rem;
-      display: none;
-    }
+#set-password-screen .login-box p.hint {
+  color: #7f8b99;
+  font-size: 0.88rem;
+  text-align: center;
+  margin-top: calc(-1 * var(--spacing-xs));
+}
 
-    #set-password-btn {
-      background-color: var(--color-success);
-      color: white;
-      padding: var(--spacing-sm) var(--spacing-lg);
-      font-size: 1rem;
-      width: 100%;
-      border-radius: var(--radius-md);
-      transition: all 0.3s ease;
-      margin-top: var(--spacing-xs);
-    }
+#set-password-btn {
+  background-color: var(--color-success);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: 1rem;
+  width: 100%;
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+  margin-top: var(--spacing-xs);
+}
 
-    #set-password-btn:hover {
-      background-color: #0f5835;
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
-    }
+#set-password-btn:hover {
+  background-color: #0f5835;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
 
-    #set-password-btn:active {
-      transform: translateY(0);
-    }
+#set-password-btn:active {
+  transform: translateY(0);
+}
+
+#set-password-error {
+  color: #e57373;
+  background-color: rgba(193, 57, 43, 0.15);
+  border-left: 4px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.9rem;
+  display: none;
+}
+
+#set-password-ok {
+  color: #5fda9d;
+  background-color: rgba(26, 127, 74, 0.15);
+  border-left: 4px solid var(--color-success);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.9rem;
+  display: none;
+}
+
+
+/* ===================================================== */
+/* 13. OJO CONTRASEÑA                                    */
+/* ===================================================== */
+
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 44px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #7f8c8d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.toggle-password:hover {
+  color: var(--color-text);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: none;
+}
+
+.toggle-password svg {
+  width: 18px;
+  height: 18px;
+}
+
+
+/* ===================================================== */
+/* 14. VALIDACIÓN CONTRASEÑA                             */
+/* ===================================================== */
+
+.password-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.password-rules .rule {
+  font-size: 0.82rem;
+  color: #7f8b99;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+
+.password-rules .rule::before {
+  content: '✗';
+  font-weight: 700;
+  color: var(--color-danger);
+  transition: color 0.2s;
+}
+
+.password-rules .rule.ok {
+  color: #5fda9d;
+}
+
+.password-rules .rule.ok::before {
+  content: '✓';
+  color: var(--color-success);
+}

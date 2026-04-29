@@ -41,6 +41,71 @@ async function comprobarSesion() {
   }
 }
 
+// =====================================================
+// OJO + VALIDACIÓN DE CONTRASEÑA
+// =====================================================
+
+function validarPassword(valor, rulesContainer) {
+  const reglas = {
+    length:    valor.length >= 4 && valor.length <= 12,
+    upper:     /[A-Z]/.test(valor),
+    number:    /[0-9]/.test(valor),
+    nosymbols: /^[a-zA-Z0-9.]+$/.test(valor)
+  };
+
+  rulesContainer.querySelectorAll('.rule').forEach(rule => {
+    const key = rule.dataset.rule;
+    rule.classList.toggle('ok', !!reglas[key]);
+  });
+
+  return Object.values(reglas).every(Boolean);
+}
+
+function passwordValida(valor) {
+  return (
+    valor.length >= 4 &&
+    valor.length <= 12 &&
+    /[A-Z]/.test(valor) &&
+    /[0-9]/.test(valor) &&
+    /^[a-zA-Z0-9.]+$/.test(valor)
+  );
+}
+
+// Ojo mostrar/ocultar
+document.querySelectorAll('.toggle-password').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const input = document.getElementById(btn.dataset.target);
+    const eyeOpen = btn.querySelector('.eye-open');
+    const eyeClosed = btn.querySelector('.eye-closed');
+
+    if (input.type === 'password') {
+      input.type = 'text';
+      eyeOpen.style.display = 'none';
+      eyeClosed.style.display = 'block';
+    } else {
+      input.type = 'password';
+      eyeOpen.style.display = 'block';
+      eyeClosed.style.display = 'none';
+    }
+  });
+});
+
+// Validación en tiempo real - login
+document.getElementById('login-password').addEventListener('focus', () => {
+  document.getElementById('rules-login').style.display = 'flex';
+});
+document.getElementById('login-password').addEventListener('input', (e) => {
+  validarPassword(e.target.value, document.getElementById('rules-login'));
+});
+
+// Validación en tiempo real - establecer contraseña
+document.getElementById('new-password').addEventListener('focus', () => {
+  document.getElementById('rules-new').style.display = 'flex';
+});
+document.getElementById('new-password').addEventListener('input', (e) => {
+  validarPassword(e.target.value, document.getElementById('rules-new'));
+});
+
 /**
  * Oculta login y muestra la app principal
  */
@@ -58,6 +123,11 @@ document.getElementById('login-btn').addEventListener('click', async () => {
   const email = document.getElementById('login-email').value;
   const password = document.getElementById('login-password').value;
 
+  if (!passwordValida(password)) {
+  document.getElementById('login-error').textContent = 'La contraseña no cumple los requisitos.';
+  document.getElementById('login-error').style.display = 'block';
+  return;
+  }
   const { data, error } = await supabaseClient.auth.signInWithPassword({
     email,
     password
@@ -1111,9 +1181,9 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
 document.getElementById('set-password-btn').addEventListener('click', async () => {
   const password = document.getElementById('new-password').value;
 
-  if (password.length < 6) {
-    alert('La contraseña debe tener al menos 6 caracteres.');
-    return;
+  if (!passwordValida(password)) {
+  document.getElementById('set-password-error').style.display = 'block';
+  return;
   }
 
   const { error } = await supabaseClient.auth.updateUser({
