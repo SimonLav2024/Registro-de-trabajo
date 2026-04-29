@@ -30,6 +30,18 @@
   </div>
 </div>
 
+<!-- PANTALLA ESTABLECER CONTRASEÑA (primera vez tras invitación) -->
+<div id="set-password-screen">
+  <div class="login-box">
+    <h2>Bienvenido</h2>
+    <p class="hint">Es tu primera vez. Establece una contraseña para acceder en el futuro.</p>
+    <input type="password" id="new-password" placeholder="Nueva contraseña (mín. 6 caracteres)">
+    <button id="set-password-btn">Guardar contraseña</button>
+    <p id="set-password-error">Error al guardar la contraseña. Inténtalo de nuevo.</p>
+    <p id="set-password-ok">¡Contraseña guardada! Accediendo...</p>
+  </div>
+</div>
+
 <!-- CONTENIDO PRINCIPAL (oculto hasta hacer login) -->
 <div id="main-content" style="display:none;">
 
@@ -85,15 +97,15 @@
 
   <!-- Botones para visualizar y descargar PDF del mes actual -->
   <div style="display: flex; justify-content: space-between; align-items: center;">
-  <div>
-    <button id="preview-pdf">Ver PDF</button>
-    <button id="download-pdf">Descargar PDF</button>
+    <div>
+      <button id="preview-pdf">Ver PDF</button>
+      <button id="download-pdf">Descargar PDF</button>
+    </div>
+    <div>
+      <button id="preview-pdf-resumen">Ver PDF Resumen</button>
+      <button id="download-pdf-resumen">Descargar PDF Resumen</button>
+    </div>
   </div>
-  <div>
-    <button id="preview-pdf-resumen">Ver PDF Resumen</button>
-    <button id="download-pdf-resumen">Descargar PDF Resumen</button>
-  </div>
-</div>
 
   <!-- =========== SECCIÓN 3: TABLA DE REGISTROS =========== -->
   <!-- Tabla dinámica que muestra todos los registros del mes -->
@@ -150,15 +162,6 @@
         <h4>Registro de Trabajo</h4>
         <p>Sistema de gestión y control de horas de trabajo con exportación a PDF</p>
       </div>
-      <!-- <div class="footer-section">
-        <h4>Características</h4>
-        <ul>
-          <li>Registrar jornadas de trabajo</li>
-          <li>Filtrar por mes</li>
-          <li>Exportar a PDF</li>
-          <li>Editar y eliminar registros</li>
-        </ul>
-      </div> -->
       <div class="footer-section">
         <h4>Información</h4>
         <p><strong>Versión:</strong> 5.1</p>
@@ -166,7 +169,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p> Favicon de <a href="https://www.flaticon.es/iconos-gratis/experiencia-laboral" title="experiencia laboral iconos">Experiencia laboral iconos creados por Freepik - Flaticon</a></p>
+      <p>Favicon de <a href="https://www.flaticon.es/iconos-gratis/experiencia-laboral" title="experiencia laboral iconos">Experiencia laboral iconos creados por Freepik - Flaticon</a></p>
       <p>&copy; 2026 Registro de Trabajo. Realizado por SLS. Todos los derechos reservados.</p>
     </div>
   </footer>

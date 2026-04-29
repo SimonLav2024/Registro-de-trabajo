@@ -1090,7 +1090,52 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
 });
 
 // =====================================================
-// 7. INICIALIZACIÓN - EJECUTARSE AL CARGAR LA PÁGINA
+// 7. ESTABLECER CONTRASEÑA - PRIMERA VEZ TRAS INVITACIÓN
+// =====================================================
+
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session?.user) {
+    const meta = session.user.user_metadata;
+    // Si viene de invitación y no ha puesto contraseña propia aún
+    const esInvitado = !meta?.password_set;
+    const tieneInvitacion = session.user.invited_at;
+
+    if (tieneInvitacion && esInvitado) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('main-content').style.display = 'none';
+      document.getElementById('set-password-screen').style.display = 'flex';
+    }
+  }
+});
+
+document.getElementById('set-password-btn').addEventListener('click', async () => {
+  const password = document.getElementById('new-password').value;
+
+  if (password.length < 6) {
+    alert('La contraseña debe tener al menos 6 caracteres.');
+    return;
+  }
+
+  const { error } = await supabaseClient.auth.updateUser({
+    password,
+    data: { password_set: true }   // marca que ya estableció contraseña
+  });
+
+  if (error) {
+    document.getElementById('set-password-error').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('set-password-ok').style.display = 'block';
+
+  setTimeout(() => {
+    document.getElementById('set-password-screen').style.display = 'none';
+    mostrarApp();
+  }, 1500);
+});
+
+// =====================================================
+// 8. INICIALIZACIÓN - EJECUTARSE AL CARGAR LA PÁGINA
 // =====================================================
 
 // cargarRegistros();
