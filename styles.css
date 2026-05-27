@@ -289,6 +289,72 @@ form button[type="submit"]:active {
   box-shadow: var(--shadow-sm);
 }
 
+.toggle-group {
+  background-color: var(--color-secondary);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.toggle-group:hover {
+  background-color: var(--color-primary);
+  border-color: rgba(255,255,255,0.2);
+  transform: translateY(-1px);
+}
+
+.group-summary {
+  background-color: rgba(26, 77, 122, 0.08);
+}
+
+.group-details {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.group-details.hidden {
+  display: none;
+}
+
+.group-details-cell {
+  padding: 0;
+  border: none;
+}
+
+.group-details-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.group-detail-row {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.group-detail-row:nth-child(odd) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.group-details thead tr,
+.group-details-header-row {
+  background: var(--color-primary);
+}
+
+.group-details th,
+.group-details td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+}
+
+.group-details tbody tr:hover {
+  background-color: rgba(26, 77, 122, 0.05);
+}
+
+.group-details td:last-child {
+  text-align: right;
+}
+
 .calendar {
   display: flex;
   justify-content: center;

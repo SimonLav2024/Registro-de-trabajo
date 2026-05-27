@@ -390,6 +390,24 @@ function formatearHora(horaStr) {
 }
 
 /**
+ * Devuelve la hora menor entre varias horas en formato HH:MM.
+ * @param {...string} horas
+ * @return {string}
+ */
+function obtenerHoraMinima(...horas) {
+  return horas.filter(Boolean).sort()[0] || '';
+}
+
+/**
+ * Devuelve la hora mayor entre varias horas en formato HH:MM.
+ * @param {...string} horas
+ * @return {string}
+ */
+function obtenerHoraMaxima(...horas) {
+  return horas.filter(Boolean).sort().reverse()[0] || '';
+}
+
+/**
  * Verifica si hoy es el último día del mes
  * Se utiliza para activar exportación automática de PDF al fin de mes
  * @return {boolean} true si es último día del mes
@@ -448,12 +466,46 @@ function generarPdfRegistros(registros, download = false, preview = true, mes = 
       totalHorasRegistro
     ];
   });
-  
+
+  const paletaColores = [
+    [26, 77, 122],
+    [41, 128, 185],
+    [142, 68, 173],
+    [22, 160, 133],
+    [211, 84, 0],
+    [192, 57, 43],
+    [39, 174, 96]
+  ];
+  const colorPorFecha = new Map();
+  let siguienteColor = 0;
+
+  const cuentasPorFecha = registros.reduce((map, registro) => {
+    map[registro.fecha] = (map[registro.fecha] || 0) + 1;
+    return map;
+  }, {});
+
   // Generar tabla en el PDF (con marginTop para dejar espacio al título)
   doc.autoTable({ 
     head: [cabecera], 
     body: filas,
-    startY: 25
+    startY: 25,
+    didParseCell: function (data) {
+      if (data.section !== 'body') return;
+
+      const fecha = data.row.raw[0];
+      if (cuentasPorFecha[fecha] < 2) return;
+
+      if (!colorPorFecha.has(fecha)) {
+        const color = paletaColores[siguienteColor % paletaColores.length];
+        const background = color.map(value => Math.round(value + (255 - value) * 0.85));
+        colorPorFecha.set(fecha, { text: 20, fill: background });
+        siguienteColor++;
+      }
+
+      const rowColor = colorPorFecha.get(fecha);
+      data.cell.styles.fillColor = rowColor.fill;
+      data.cell.styles.textColor = rowColor.text;
+    }
   });
 
   // ---- AÑADIR TOTAL DE HORAS AL FINAL DE LA TABLA ----
@@ -809,27 +861,90 @@ async function cargarRegistros() {
     return;
   }
 
+  const gruposPorFecha = new Map();
   registrosMes.forEach(registro => {
-    const dia = nombreDiaSemana(registro.fecha);
-    const fechaFormateada = formatearFecha(registro.fecha);
-    const totalHorasRegistro = obtenerHorasRegistro(registro);
-    const lugarSeguro = escapeHtml(registro.lugar_trabajo);
-    const dataLugarSeguro = escapeHtml(registro.lugar_trabajo);
-    
+    if (!gruposPorFecha.has(registro.fecha)) {
+      gruposPorFecha.set(registro.fecha, []);
+    }
+    gruposPorFecha.get(registro.fecha).push(registro);
+  });
+
+  gruposPorFecha.forEach(grupo => {
+    const fechaRegistro = grupo[0].fecha;
+    const dia = nombreDiaSemana(fechaRegistro);
+    const fechaFormateada = formatearFecha(fechaRegistro);
+    const totalHorasRegistro = grupo.reduce((sum, reg) => sum + obtenerHorasRegistro(reg), 0).toFixed(2);
+
+    const entradaFormateada = grupo.length === 1
+      ? formatearHora(grupo[0].hora_entrada)
+      : formatearHora(obtenerHoraMinima(...grupo.map(r => r.hora_entrada)));
+
+    const salidaFormateada = grupo.length === 1
+      ? formatearHora(grupo[0].hora_salida)
+      : formatearHora(obtenerHoraMaxima(...grupo.map(r => r.hora_salida)));
+
+    const lugares = [...new Set(grupo.map(r => r.lugar_trabajo).filter(Boolean))];
+    const lugarSeguro = escapeHtml(lugares.length === 1 ? lugares[0] : lugares.join(' / '));
+
+    const acciones = grupo.length === 1
+      ? `
+          <button class="edit-btn" data-id="${grupo[0].id}" data-fecha="${grupo[0].fecha}" data-entrada="${grupo[0].hora_entrada}" data-salida="${grupo[0].hora_salida}" data-lugar="${escapeHtml(grupo[0].lugar_trabajo)}">Modificar</button>
+          <button class="delete-btn" data-id="${grupo[0].id}">Borrar</button>
+        `
+      : `<button class="toggle-group" data-fecha="${fechaRegistro}" data-count="${grupo.length}">Ver registros (${grupo.length})</button>`;
+
     const fila = `
-      <tr>
-        <td>${fechaFormateada} ${dia ? '(' + dia + ')' : ''}</td>
-        <td>${formatearHora(registro.hora_entrada)}</td>
-        <td>${formatearHora(registro.hora_salida)}</td>
+      <tr class="group-summary">
+        <td>${fechaFormateada} ${dia ? '(' + dia + ')' : ''}${grupo.length > 1 ? ` <strong>(${grupo.length} registros)</strong>` : ''}</td>
+        <td>${entradaFormateada}</td>
+        <td>${salidaFormateada}</td>
         <td>${lugarSeguro}</td>
         <td>${totalHorasRegistro}</td>
-        <td>
-          <button class="edit-btn" data-id="${registro.id}" data-fecha="${registro.fecha}" data-entrada="${registro.hora_entrada}" data-salida="${registro.hora_salida}" data-lugar="${dataLugarSeguro}">Modificar</button>
-          <button class="delete-btn" data-id="${registro.id}">Borrar</button>
-        </td>
+        <td>${acciones}</td>
       </tr>
     `;
     tabla.innerHTML += fila;
+
+    if (grupo.length > 1) {
+      const detalles = grupo.map(registro => {
+        const lugarFila = escapeHtml(registro.lugar_trabajo);
+        return `
+          <tr class="group-detail-row">
+            <td>${formatearFecha(registro.fecha)}</td>
+            <td>${formatearHora(registro.hora_entrada)}</td>
+            <td>${formatearHora(registro.hora_salida)}</td>
+            <td>${lugarFila}</td>
+            <td>${obtenerHorasRegistro(registro).toFixed(2)}</td>
+            <td>
+              <button class="edit-btn" data-id="${registro.id}" data-fecha="${registro.fecha}" data-entrada="${registro.hora_entrada}" data-salida="${registro.hora_salida}" data-lugar="${lugarFila}">Modificar</button>
+              <button class="delete-btn" data-id="${registro.id}">Borrar</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tabla.innerHTML += `
+        <tr class="group-details hidden">
+          <td colspan="6" class="group-details-cell">
+            <table class="group-details-table">
+              <thead>
+                <tr class="group-details-header-row">
+                  <th>Fecha</th>
+                  <th>Entrada</th>
+                  <th>Salida</th>
+                  <th>Lugar</th>
+                  <th>Horas</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                ${detalles}
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      `;
+    }
   });
 
 }
@@ -1050,6 +1165,19 @@ document.getElementById('download-pdf-resumen').addEventListener('click', () => 
  * el detalle del error de Supabase en consola (F12) si la actualización falla.
  */
 tabla.addEventListener('click', async e => {
+  if (e.target.classList.contains('toggle-group')) {
+    const btn = e.target;
+    const summaryRow = btn.closest('tr');
+    const detailRow = summaryRow.nextElementSibling;
+    const count = btn.dataset.count || 0;
+    if (detailRow && detailRow.classList.contains('group-details')) {
+      const isHidden = detailRow.classList.contains('hidden');
+      detailRow.classList.toggle('hidden');
+      btn.textContent = isHidden ? `Ocultar registros (${count})` : `Ver registros (${count})`;
+    }
+    return;
+  }
+
   if (e.target.classList.contains('edit-btn')) {
     const btn = e.target;
     const row = btn.closest('tr');
