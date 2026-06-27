@@ -80,22 +80,37 @@
       <input type="date" id="fecha" required>
     </div>
 
-    <!-- Campo: Hora de entrada -->
-    <div class="form-group">
-      <label for="entrada">Hora Entrada</label>
-      <input type="time" id="entrada" required>
+    <!-- Campo: Detalle de trabajo por sitio -->
+    <div class="form-group form-group-full">
+      <label>Sitios Trabajados y Horas</label>
+      <div id="bloques-trabajo">
+        <div class="bloque-trabajo">
+          <div class="bloque-row">
+            <input type="text" class="bloque-lugar" placeholder="Lugar de Trabajo" required>
+            <input type="time" class="bloque-entrada" required>
+            <input type="time" class="bloque-salida" required>
+            <input type="number" class="bloque-horas" min="0.25" step="0.25" placeholder="Horas trabajadas" required>
+            <button type="button" class="remove-bloque-btn">Eliminar</button>
+          </div>
+        </div>
+      </div>
+      <button type="button" id="add-bloque-btn" class="secondary-btn">+ Añadir otro sitio</button>
     </div>
 
-    <!-- Campo: Hora de salida -->
-    <div class="form-group">
-      <label for="salida">Hora Salida</label>
-      <input type="time" id="salida" required>
-    </div>
-
-    <!-- Campo: Lugar donde se trabajó -->
-    <div class="form-group">
-      <label for="lugar">Lugar de Trabajo</label>
-      <input type="text" id="lugar" required>
+    <!-- Campo: Vacaciones (rango de fechas) -->
+    <div class="form-group form-group-full">
+      <label>Vacaciones</label>
+      <div class="vacaciones-row">
+        <div class="vacaciones-field">
+          <label for="vacaciones-desde">Desde</label>
+          <input type="date" id="vacaciones-desde">
+        </div>
+        <div class="vacaciones-field">
+          <label for="vacaciones-hasta">Hasta</label>
+          <input type="date" id="vacaciones-hasta">
+        </div>
+        <button type="button" id="vacaciones-btn" class="secondary-btn">Registrar vacaciones</button>
+      </div>
     </div>
 
     <!-- Botón para enviar y guardar el registro -->
@@ -105,6 +120,7 @@
     <div class="form-actions">
       <button type="button" id="descanso-btn">Descanso</button>
       <button type="button" id="festivo-btn">Festivo</button>
+      <button type="button" id="vacaciones-btn-small" class="secondary-btn">Vacaciones por dias</button>
     </div>
 
   </form>

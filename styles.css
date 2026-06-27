@@ -90,10 +90,11 @@ form {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   margin-bottom: var(--spacing-lg);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: var(--spacing-md);
-  max-width: 600px;
+  max-width: 700px;
   margin-left: auto;
   margin-right: auto;
   border: 1px solid var(--color-border);
@@ -103,39 +104,131 @@ form {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
+  width: 100%;
+  align-items: stretch;
 }
 
-.form-group:has(input[type="date"]) {
-  grid-column: 1;
-  grid-row: 1;
+.form-group-full {
+  width: 100%;
 }
 
-.form-group:has(input[type="time"]):nth-of-type(2) {
-  grid-column: 2;
-  grid-row: 1;
+.form-help {
+  font-size: 0.9rem;
+  color: #aab8c8;
+  margin-bottom: var(--spacing-sm);
 }
 
-.form-group:has(input[type="time"]):nth-of-type(3) {
-  grid-column: 2;
-  grid-row: 2;
+.vacaciones-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: flex-end;
+  margin-bottom: var(--spacing-sm);
 }
 
-.form-group:has(input[type="text"]) {
-  grid-column: 1;
-  grid-row: 2;
+.vacaciones-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1 1 180px;
+  min-width: 160px;
+}
+
+.vacaciones-field label {
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+#vacaciones-btn,
+#vacaciones-btn-small {
+  background-color: var(--color-warning);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+}
+
+#vacaciones-btn:hover,
+#vacaciones-btn-small:hover {
+  background-color: #bf7d00;
+}
+
+#bloques-trabajo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  align-items: stretch;
+}
+
+.bloque-trabajo {
+  background: linear-gradient(135deg, rgba(26, 77, 122, 0.22), rgba(37, 51, 69, 0.95));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.bloque-row {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.bloque-lugar {
+  flex: 1.4;
+  min-width: 170px;
+}
+
+.bloque-entrada,
+.bloque-salida,
+.bloque-horas {
+  flex: 0.9;
+  min-width: 95px;
+}
+
+.remove-bloque-btn,
+.secondary-btn {
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-bloque-btn {
+  background-color: var(--color-danger);
+}
+
+.remove-bloque-btn:hover {
+  background-color: #a22a20;
+}
+
+.secondary-btn {
+  background-color: var(--color-secondary);
+}
+
+.secondary-btn:hover {
+  background-color: #1f5d8a;
 }
 
 form button[type="submit"] {
-  grid-column: 1 / -1;
+  width: 100%;
+  max-width: 280px;
 }
 
 .form-actions {
-  grid-column: 1 / -1;
   display: flex;
   justify-content: center;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
   align-items: center;
+  width: 100%;
 }
 
 .form-actions button {
@@ -177,7 +270,8 @@ label {
 
 input[type="date"],
 input[type="time"],
-input[type="text"] {
+input[type="text"],
+input[type="number"] {
   padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -191,7 +285,8 @@ input[type="text"] {
 
 input[type="date"]:focus,
 input[type="time"]:focus,
-input[type="text"]:focus {
+input[type="text"]:focus,
+input[type="number"]:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(26, 77, 122, 0.3);
@@ -199,7 +294,8 @@ input[type="text"]:focus {
 
 input[type="date"]::placeholder,
 input[type="time"]::placeholder,
-input[type="text"]::placeholder {
+input[type="text"]::placeholder,
+input[type="number"]::placeholder {
   color: #7f8c8d;
   font-weight: 500;
 }
@@ -228,11 +324,9 @@ form button[type="submit"] {
   background-color: var(--color-success);
   color: white;
   padding: var(--spacing-sm) var(--spacing-lg);
-  font-size: 0.9rem;
-  width: 100%;
-  max-width: 275px;
-  margin-left: auto;
-  margin-right: auto;
+  font-size: 0.95rem;
+  width: auto;
+  margin: 0 auto;
 }
 
 form button[type="submit"]:hover {
@@ -422,6 +516,196 @@ select {
 
 select:hover {
   border-color: var(--color-primary);
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 720px) {
+  body {
+    padding: var(--spacing-md);
+  }
+
+  form {
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .vacaciones-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vacaciones-field {
+    min-width: 100%;
+  }
+
+  .bloque-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bloque-lugar,
+  .bloque-entrada,
+  .bloque-salida,
+  .bloque-horas,
+  .remove-bloque-btn {
+    min-width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .remove-bloque-btn,
+  .secondary-btn,
+  #vacaciones-btn,
+  #vacaciones-btn-small,
+  .form-actions button,
+  #logout-btn,
+  .calendar button {
+    width: auto;
+    max-width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  button,
+  form button[type="submit"],
+  #vacaciones-btn,
+  #vacaciones-btn-small,
+  .remove-bloque-btn,
+  .secondary-btn,
+  .form-actions button,
+  .calendar button,
+  #logout-btn {
+    font-size: 0.9rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    width: auto;
+    max-width: 100%;
+  }
+
+  .vista_movil {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+
+  .vista_movil table {
+    width: 100%;
+    min-width: 700px;
+    border-collapse: collapse;
+  }
+
+  .vista_movil th,
+  .vista_movil td {
+    padding: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .vista_movil td:last-child {
+    text-align: left;
+  }
+
+  .group-details-table,
+  .group-details th,
+  .group-details td {
+    display: table;
+    width: 100%;
+  }
+
+  .group-details th,
+  .group-details td {
+    padding: 10px 12px;
+  }
+
+  #logout-btn {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    align-self: stretch;
+  }
+}
+
+@media (max-width: 420px) {
+  html {
+    font-size: 14px;
+  }
+
+  body {
+    padding: var(--spacing-xs);
+  }
+
+  form {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .form-help,
+  .vacaciones-field label,
+  label,
+  .form-actions button,
+  #vacaciones-btn,
+  #vacaciones-btn-small,
+  .secondary-btn,
+  .remove-bloque-btn,
+  .edit-btn,
+  .delete-btn,
+  .toggle-group,
+  #logout-btn,
+  .calendar button,
+  select,
+  input[type="date"],
+  input[type="time"],
+  input[type="text"],
+  input[type="number"] {
+    font-size: 0.88rem;
+  }
+
+  .vacaciones-row,
+  .bloque-row,
+  .form-actions {
+    gap: var(--spacing-xs);
+  }
+
+  .vacaciones-field,
+  .bloque-lugar,
+  .bloque-entrada,
+  .bloque-salida,
+  .bloque-horas,
+  .remove-bloque-btn,
+  .secondary-btn,
+  #vacaciones-btn,
+  #vacaciones-btn-small,
+  .form-actions button,
+  .calendar button,
+  #logout-btn {
+    width: 100%;
+    max-width: 100%;
+    font-size: 0.88rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .bloque-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .group-details th,
+  .group-details td {
+    padding: 8px 10px;
+  }
+
+  #logout-btn {
+    top: 10px;
+    right: 10px;
+    padding: 8px 10px;
+  }
 }
 
 select:focus {

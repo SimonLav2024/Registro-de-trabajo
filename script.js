@@ -20,6 +20,8 @@ const supabaseClient = window.supabase.createClient(
  */
 const formulario = document.getElementById("formulario");
 const tabla = document.getElementById("tabla-registros");
+const bloquesTrabajoContainer = document.getElementById("bloques-trabajo");
+const addBloqueBtn = document.getElementById("add-bloque-btn");
 
 
 // =====================================================
@@ -310,6 +312,123 @@ function normalizarTexto(texto) {
   return String(texto || '')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/**
+ * Convierte una cantidad de horas en formato HH:MM para persistir en los campos de tiempo.
+ * @param {number|string} horas
+ * @return {string}
+ */
+function convertirHorasATiempo(horas) {
+  const horasNum = Number(horas);
+  if (!Number.isFinite(horasNum) || horasNum <= 0) return '00:00';
+
+  const totalMinutos = Math.round(horasNum * 60);
+  const horasEnteras = Math.floor(totalMinutos / 60);
+  const minutos = totalMinutos % 60;
+
+  return `${String(horasEnteras).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
+}
+
+/**
+ * Crea el HTML de un bloque de trabajo para un sitio concreto.
+ * @param {string} lugar
+ * @param {string|number} horas
+ * @return {string}
+ */
+function crearBloqueTrabajoHtml(lugar = '', entrada = '', salida = '', horas = '') {
+  return `
+    <div class="bloque-trabajo">
+      <div class="bloque-row">
+        <input type="text" class="bloque-lugar" placeholder="Ej: Osuna" value="${escapeHtml(lugar)}" required>
+        <input type="time" class="bloque-entrada" value="${escapeHtml(entrada)}" required>
+        <input type="time" class="bloque-salida" value="${escapeHtml(salida)}" required>
+        <input type="number" class="bloque-horas" min="0.25" step="0.25" placeholder="Horas" value="${escapeHtml(horas)}" required>
+        <button type="button" class="remove-bloque-btn">Eliminar</button>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Añade un nuevo bloque de trabajo al formulario.
+ * @param {string} lugar
+ * @param {string|number} horas
+ */
+function agregarBloqueTrabajo(lugar = '', entrada = '', salida = '', horas = '') {
+  if (!bloquesTrabajoContainer) return;
+  bloquesTrabajoContainer.insertAdjacentHTML('beforeend', crearBloqueTrabajoHtml(lugar, entrada, salida, horas));
+  const bloques = bloquesTrabajoContainer.querySelectorAll('.bloque-trabajo');
+  const bloqueReciente = bloques[bloques.length - 1];
+  const entradaInput = bloqueReciente?.querySelector('.bloque-entrada');
+  const salidaInput = bloqueReciente?.querySelector('.bloque-salida');
+  const horasInput = bloqueReciente?.querySelector('.bloque-horas');
+
+  const actualizarHorasDesdeHorario = () => {
+    if (!entradaInput || !salidaInput || !horasInput) return;
+    const entrada = entradaInput.value;
+    const salida = salidaInput.value;
+    if (!entrada || !salida || !esHoraValida(entrada) || !esHoraValida(salida)) {
+      return;
+    }
+    const horasCalculadas = calcularHorasTotales(entrada, salida);
+    horasInput.value = horasCalculadas.toFixed(2);
+  };
+
+  entradaInput?.addEventListener('change', actualizarHorasDesdeHorario);
+  salidaInput?.addEventListener('change', actualizarHorasDesdeHorario);
+}
+
+/**
+ * Obtiene los bloques cargados en el formulario.
+ * @return {Array<{lugar:string, horas:number}>}
+ */
+function obtenerBloquesTrabajo() {
+  if (!bloquesTrabajoContainer) return [];
+
+  return Array.from(bloquesTrabajoContainer.querySelectorAll('.bloque-trabajo'))
+    .map((bloque) => {
+      const lugar = normalizarTexto(bloque.querySelector('.bloque-lugar')?.value || '');
+      const entrada = bloque.querySelector('.bloque-entrada')?.value || '';
+      const salida = bloque.querySelector('.bloque-salida')?.value || '';
+      const horasInput = bloque.querySelector('.bloque-horas')?.value;
+      const horas = horasInput === '' ? '' : Number(horasInput);
+      return { lugar, entrada, salida, horas };
+    })
+    .filter((bloque) => bloque.lugar || bloque.horas !== '');
+}
+
+/**
+ * Valida los bloques de trabajo introducidos en el formulario.
+ * @param {Object} params
+ * @return {string|null} Mensaje de error o null si es válido
+ */
+function validarRegistroPorSitios({ fecha, bloques }) {
+  if (!fecha || !esFechaValida(fecha)) {
+    return 'La fecha no es válida. Usa el formato YYYY-MM-DD.';
+  }
+
+  if (!Array.isArray(bloques) || bloques.length === 0) {
+    return 'Añade al menos un sitio trabajado para guardar.';
+  }
+
+  for (const [index, bloque] of bloques.entries()) {
+    const lugar = normalizarTexto(bloque.lugar);
+    if (!lugar) {
+      return `El sitio ${index + 1} necesita un nombre.`;
+    }
+
+    if (!esHoraValida(bloque.entrada) || !esHoraValida(bloque.salida)) {
+      return `Las horas de entrada y salida del sitio "${lugar}" deben ser válidas.`;
+    }
+
+    const horas = Number(bloque.horas);
+    if (!Number.isFinite(horas) || horas <= 0 || horas > 24) {
+      return `Las horas del sitio "${lugar}" deben ser un valor válido entre 0 y 24.`;
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -956,26 +1075,22 @@ async function cargarRegistros() {
 
 // ---- 5.1 EVENTO: ENVIAR FORMULARIO (CREAR NUEVO REGISTRO) ----
 /**
- * Captura envío del formulario y crea nuevo registro en Supabase
+ * Captura envío del formulario y crea nuevos registros en Supabase
  * 
  * Proceso:
  * 1. Previene recarga de página por defecto
- * 2. Obtiene valores de inputs (fecha, entrada, salida, lugar)
- * 3. Calcula horas totales (con soporte para turnos nocturnos)
+ * 2. Obtiene los bloques de trabajo introducidos por el usuario
+ * 3. Valida cada bloque y genera un registro por sitio
  * 4. Inserta en tabla 'registros_trabajo'
- * 5. Limpia formulario
- * 6. Recarga tabla para mostrar nuevo registro
+ * 5. Limpia formulario y recarga tabla
  */
 formulario.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const fecha = document.getElementById("fecha").value;
-  const entrada = document.getElementById("entrada").value;
-  const salida = document.getElementById("salida").value;
-  const lugar = normalizarTexto(document.getElementById("lugar").value);
-  document.getElementById("lugar").value = lugar;
+  const bloques = obtenerBloquesTrabajo();
 
-  const valida = validarRegistro({ fecha, entrada, salida, lugar });
+  const valida = validarRegistroPorSitios({ fecha, bloques });
   if (valida) {
     alert(valida);
     return;
@@ -983,17 +1098,17 @@ formulario.addEventListener("submit", async (e) => {
 
   const { data: { user } } = await supabaseClient.auth.getUser();
 
-  const { data: insertData, error: insertError } = await supabaseClient
+  const registrosParaInsertar = bloques.map((bloque) => ({
+    fecha,
+    hora_entrada: bloque.entrada,
+    hora_salida: bloque.salida,
+    lugar_trabajo: normalizarTexto(bloque.lugar),
+    user_id: user.id
+  }));
+
+  const { error: insertError } = await supabaseClient
     .from("registros_trabajo")
-    .insert([
-      {
-        fecha: fecha,
-        hora_entrada: entrada,
-        hora_salida: salida,
-        lugar_trabajo: lugar,
-        user_id: user.id
-      }
-    ], { returning: 'representation' });
+    .insert(registrosParaInsertar, { returning: 'representation' });
 
   if (insertError) {
     console.error('Error al insertar registro:', insertError);
@@ -1003,8 +1118,46 @@ formulario.addEventListener("submit", async (e) => {
 
   // Limpiar formulario y recargar tabla
   formulario.reset();
+  if (bloquesTrabajoContainer) {
+    bloquesTrabajoContainer.innerHTML = crearBloqueTrabajoHtml();
+  }
   cargarRegistros();
 });
+
+if (addBloqueBtn) {
+  addBloqueBtn.addEventListener('click', () => agregarBloqueTrabajo());
+}
+
+if (bloquesTrabajoContainer) {
+  bloquesTrabajoContainer.addEventListener('change', (e) => {
+    if (e.target.classList.contains('bloque-entrada') || e.target.classList.contains('bloque-salida')) {
+      const bloque = e.target.closest('.bloque-trabajo');
+      const entradaInput = bloque?.querySelector('.bloque-entrada');
+      const salidaInput = bloque?.querySelector('.bloque-salida');
+      const horasInput = bloque?.querySelector('.bloque-horas');
+
+      if (!entradaInput || !salidaInput || !horasInput) return;
+      if (!entradaInput.value || !salidaInput.value) return;
+      if (!esHoraValida(entradaInput.value) || !esHoraValida(salidaInput.value)) return;
+
+      horasInput.value = calcularHorasTotales(entradaInput.value, salidaInput.value).toFixed(2);
+    }
+  });
+}
+
+if (bloquesTrabajoContainer) {
+  bloquesTrabajoContainer.addEventListener('click', (e) => {
+    if (e.target.classList.contains('remove-bloque-btn')) {
+      const bloque = e.target.closest('.bloque-trabajo');
+      if (bloque) {
+        bloque.remove();
+        if (bloquesTrabajoContainer.querySelectorAll('.bloque-trabajo').length === 0) {
+          agregarBloqueTrabajo();
+        }
+      }
+    }
+  });
+}
 
 /**
  * Crea un registro de 0 horas para el día seleccionado.
@@ -1041,8 +1194,70 @@ async function agregarDiaCeroHoras(tipo) {
   cargarRegistros();
 }
 
+function obtenerFechasEntre(desde, hasta) {
+  const start = new Date(desde);
+  const end = new Date(hasta);
+  const fechas = [];
+  const current = new Date(start);
+
+  while (current <= end) {
+    fechas.push(current.toISOString().slice(0, 10));
+    current.setDate(current.getDate() + 1);
+  }
+
+  return fechas;
+}
+
+async function agregarVacaciones() {
+  const desde = document.getElementById('vacaciones-desde').value;
+  const hasta = document.getElementById('vacaciones-hasta').value;
+
+  if (!esFechaValida(desde) || !esFechaValida(hasta)) {
+    alert('Selecciona fechas válidas para el rango de vacaciones.');
+    return;
+  }
+
+  if (new Date(hasta) < new Date(desde)) {
+    alert('La fecha de fin no puede ser anterior a la fecha de inicio.');
+    return;
+  }
+
+  const fechas = obtenerFechasEntre(desde, hasta);
+  if (fechas.length === 0) {
+    alert('El rango de vacaciones no contiene ningún día válido.');
+    return;
+  }
+
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  const registros = fechas.map((fecha) => ({
+    fecha,
+    hora_entrada: '00:00',
+    hora_salida: '00:00',
+    lugar_trabajo: 'Vacaciones',
+    user_id: user.id
+  }));
+
+  const { error } = await supabaseClient
+    .from('registros_trabajo')
+    .insert(registros, { returning: 'representation' });
+
+  if (error) {
+    console.error('Error al insertar vacaciones:', error);
+    alert('No se pudo guardar las vacaciones. Revisa la consola para más detalles.');
+    return;
+  }
+
+  formulario.reset();
+  if (bloquesTrabajoContainer) {
+    bloquesTrabajoContainer.innerHTML = crearBloqueTrabajoHtml();
+  }
+  cargarRegistros();
+}
+
 document.getElementById('descanso-btn').addEventListener('click', () => agregarDiaCeroHoras('Descanso'));
 document.getElementById('festivo-btn').addEventListener('click', () => agregarDiaCeroHoras('Festivo'));
+document.getElementById('vacaciones-btn')?.addEventListener('click', agregarVacaciones);
+document.getElementById('vacaciones-btn-small')?.addEventListener('click', agregarVacaciones);
 
 // ---- 5.2 EVENTO: ORDENACIÓN POR CLIC EN ENCABEZADOS ----
 /**
