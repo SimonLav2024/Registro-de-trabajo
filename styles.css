@@ -233,15 +233,24 @@ form button[type="submit"] {
 
 .form-actions button {
   flex: 1 1 180px;
-  max-width: 260px;
+  max-width: 280px;
   border-radius: var(--radius-md);
   font-weight: 600;
   transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  margin: var(--spacing-sm) 0;
 }
 
 #descanso-btn {
   background-color: var(--color-descanso);
   color: white;
+  margin: var(--spacing-sm) 0;
+}
+
+@media (max-width: 480px) {
+  .form-actions button {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
 }
 
 #descanso-btn:hover {
@@ -253,6 +262,7 @@ form button[type="submit"] {
 #festivo-btn {
   background-color: var(--color-fiesta);
   color: white;
+  margin: var(--spacing-sm) 0;
 }
 
 #festivo-btn:hover {
@@ -325,8 +335,8 @@ form button[type="submit"] {
   color: white;
   padding: var(--spacing-sm) var(--spacing-lg);
   font-size: 0.95rem;
-  width: auto;
-  margin: 0 auto;
+  width: 100%;
+  margin: 8px auto;
 }
 
 form button[type="submit"]:hover {
@@ -532,10 +542,21 @@ select:hover {
   .vacaciones-row {
     flex-direction: column;
     align-items: stretch;
+    gap: 0;
   }
 
   .vacaciones-field {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     min-width: 100%;
+    margin-bottom: 0;
+  }
+
+  .vacaciones-field input {
+    margin-bottom: 8px;
+    flex: 1 1 auto;
+    
   }
 
   .bloque-row {
