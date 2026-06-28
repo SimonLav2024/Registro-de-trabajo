@@ -530,6 +530,10 @@ select:hover {
 
 /* Responsive para pantallas pequeñas */
 @media (max-width: 720px) {
+  html {
+    font-size: 17px;
+  }
+
   body {
     padding: var(--spacing-md);
   }
@@ -598,8 +602,8 @@ select:hover {
   .form-actions button,
   .calendar button,
   #logout-btn {
-    font-size: 0.9rem;
-    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 1.05rem;
+    padding: var(--spacing-sm) var(--spacing-md);
     width: auto;
     max-width: 100%;
   }
@@ -618,7 +622,7 @@ select:hover {
 
   .vista_movil th,
   .vista_movil td {
-    padding: 10px;
+    padding: 12px 14px;
     border: 1px solid rgba(255,255,255,0.08);
     text-align: left;
     white-space: nowrap;
@@ -643,12 +647,12 @@ select:hover {
 
   .group-details th,
   .group-details td {
-    padding: 10px 12px;
+    padding: 12px 14px;
   }
 
   .group-details-table th,
   .group-details-table td {
-    padding: 10px;
+    padding: 12px 14px;
     border: 1px solid rgba(255,255,255,0.08);
     text-align: left;
     white-space: nowrap;
@@ -665,20 +669,20 @@ select:hover {
 
 @media (max-width: 420px) {
   html {
-    font-size: 14px;
+    font-size: 17.5px;
   }
 
   body {
-    padding: var(--spacing-xs);
+    padding: var(--spacing-sm);
   }
 
   form {
-    padding: var(--spacing-sm);
-    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
   }
 
   h2 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
   }
 
   .form-help,
@@ -699,13 +703,24 @@ select:hover {
   input[type="time"],
   input[type="text"],
   input[type="number"] {
-    font-size: 0.88rem;
+    font-size: 1.05rem;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 1rem;
+  }
+
+  .toggle-group {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 1rem;
   }
 
   .vacaciones-row,
   .bloque-row,
   .form-actions {
-    gap: var(--spacing-xs);
+    gap: var(--spacing-sm);
   }
 
   .vacaciones-field,
@@ -722,8 +737,8 @@ select:hover {
   #logout-btn {
     width: 100%;
     max-width: 100%;
-    font-size: 0.88rem;
-    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 1.05rem;
+    padding: var(--spacing-sm) var(--spacing-md);
   }
 
   .bloque-row {
@@ -733,13 +748,18 @@ select:hover {
 
   .group-details th,
   .group-details td {
-    padding: 8px 10px;
+    padding: 12px 14px;
+  }
+
+  .vista_movil th,
+  .vista_movil td {
+    padding: 12px 14px;
   }
 
   #logout-btn {
     top: 10px;
     right: 10px;
-    padding: 8px 10px;
+    padding: var(--spacing-sm) var(--spacing-md);
   }
 }
 
@@ -1065,11 +1085,11 @@ footer {
   }
 
   table {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
   }
 
   th, td {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-md);
   }
 
   h2 {
@@ -1079,14 +1099,14 @@ footer {
   #preview-pdf,
   #download-pdf {
     margin-right: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: 0.9rem;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.95rem;
   }
 
   .edit-btn,
   .delete-btn {
-    padding: var(--spacing-xs) var(--spacing-xs);
-    font-size: 0.75rem;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.95rem;
   }
 }
 
