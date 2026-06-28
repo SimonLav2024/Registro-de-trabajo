@@ -628,16 +628,30 @@ select:hover {
     text-align: left;
   }
 
-  .group-details-table,
-  .group-details th,
-  .group-details td {
-    display: table;
+  .group-details-cell {
+    padding: 0 !important;
+    border: none !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .group-details-table {
     width: 100%;
+    min-width: 700px;
+    border-collapse: collapse;
   }
 
   .group-details th,
   .group-details td {
     padding: 10px 12px;
+  }
+
+  .group-details-table th,
+  .group-details-table td {
+    padding: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    text-align: left;
+    white-space: nowrap;
   }
 
   #logout-btn {
