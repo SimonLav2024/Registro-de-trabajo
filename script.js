@@ -22,6 +22,11 @@ const formulario = document.getElementById("formulario");
 const tabla = document.getElementById("tabla-registros");
 const bloquesTrabajoContainer = document.getElementById("bloques-trabajo");
 const addBloqueBtn = document.getElementById("add-bloque-btn");
+const feedbackForm = document.getElementById("feedback-form");
+const feedbackStatus = document.getElementById("feedback-status");
+const feedbackSubmitButton = document.getElementById("feedback-submit");
+const recoverPasswordBtn = document.getElementById("recover-password-btn");
+const recoverPasswordStatus = document.getElementById("recover-password-status");
 
 
 // =====================================================
@@ -117,6 +122,95 @@ function mostrarApp() {
   cargarRegistros();
 }
 
+async function recuperarPassword() {
+  if (!recoverPasswordBtn || !recoverPasswordStatus) return;
+
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) {
+    recoverPasswordStatus.textContent = 'Introduce tu correo para recibir el enlace de recuperación.';
+    recoverPasswordStatus.className = 'recover-password-status error';
+    return;
+  }
+
+  const botonOriginal = recoverPasswordBtn.textContent;
+  recoverPasswordBtn.disabled = true;
+  recoverPasswordBtn.textContent = 'Enviando...';
+  recoverPasswordStatus.textContent = '';
+  recoverPasswordStatus.className = 'recover-password-status';
+
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.href
+    });
+
+    if (error) throw error;
+
+    recoverPasswordStatus.textContent = 'Si el correo está registrado, recibirás un enlace para restablecer la contraseña.';
+    recoverPasswordStatus.className = 'recover-password-status success';
+  } catch (error) {
+    console.error('No se pudo enviar el correo de recuperación:', error);
+    recoverPasswordStatus.textContent = 'No se pudo enviar el correo de recuperación. Revisa el correo introducido.';
+    recoverPasswordStatus.className = 'recover-password-status error';
+  } finally {
+    recoverPasswordBtn.disabled = false;
+    recoverPasswordBtn.textContent = botonOriginal;
+  }
+}
+
+async function enviarFeedback(event) {
+  if (!feedbackForm || !feedbackStatus || !feedbackSubmitButton) return;
+
+  event.preventDefault();
+
+  const botonOriginal = feedbackSubmitButton.textContent;
+  feedbackSubmitButton.disabled = true;
+  feedbackSubmitButton.textContent = 'Enviando...';
+  feedbackStatus.textContent = '';
+  feedbackStatus.className = 'feedback-status';
+
+  try {
+    const payload = {
+      name: document.getElementById('feedback-name').value.trim(),
+      email: document.getElementById('feedback-email').value.trim(),
+      subject: document.getElementById('feedback-subject').value.trim(),
+      message: document.getElementById('feedback-message').value.trim()
+    };
+
+    const response = await fetch('https://formspree.io/f/xbloeygr', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (response.ok) {
+      feedbackForm.reset();
+      feedbackStatus.textContent = '¡Mensaje enviado correctamente! Gracias por tu ayuda.';
+      feedbackStatus.classList.add('success');
+    } else {
+      feedbackStatus.textContent = 'No se pudo enviar el mensaje. Inténtalo de nuevo más tarde.';
+      feedbackStatus.classList.add('error');
+    }
+  } catch (error) {
+    console.error('No se pudo enviar el formulario de ayuda:', error);
+    feedbackStatus.textContent = 'No se pudo enviar el mensaje. Inténtalo de nuevo más tarde.';
+    feedbackStatus.classList.add('error');
+  } finally {
+    feedbackSubmitButton.disabled = false;
+    feedbackSubmitButton.textContent = botonOriginal;
+  }
+}
+
+if (feedbackForm) {
+  feedbackForm.addEventListener('submit', enviarFeedback);
+}
+
+if (recoverPasswordBtn) {
+  recoverPasswordBtn.addEventListener('click', recuperarPassword);
+}
+
 /**
  * Evento: botón de login
  * Autentica con Supabase usando email y contraseña
@@ -136,6 +230,8 @@ document.getElementById('login-btn').addEventListener('click', async () => {
   });
 
   if (error) {
+    const mensaje = error.message || 'Email o contraseña incorrectos';
+    document.getElementById('login-error').textContent = mensaje;
     document.getElementById('login-error').style.display = 'block';
     return;
   }

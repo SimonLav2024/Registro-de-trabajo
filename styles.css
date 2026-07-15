@@ -100,6 +100,68 @@ form {
   border: 1px solid var(--color-border);
 }
 
+.help-section {
+  margin: var(--spacing-xl) 0;
+  padding: var(--spacing-lg);
+  background: rgba(26, 77, 122, 0.12);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.help-header {
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.help-header p {
+  color: #b7c4d2;
+  margin-top: var(--spacing-xs);
+}
+
+.login-help-btn {
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  background-color: var(--color-secondary);
+}
+
+.recover-password-status {
+  min-height: 1.2rem;
+  margin-top: var(--spacing-sm);
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.recover-password-status.success {
+  color: #6ee7b7;
+}
+
+.recover-password-status.error {
+  color: #fda4af;
+}
+
+.feedback-form {
+  max-width: 720px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.feedback-status {
+  min-height: 1.4rem;
+  margin-top: var(--spacing-sm);
+  font-weight: 600;
+  text-align: center;
+}
+
+.feedback-status.success {
+  color: #6ee7b7;
+}
+
+.feedback-status.error {
+  color: #fda4af;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -281,7 +343,9 @@ label {
 input[type="date"],
 input[type="time"],
 input[type="text"],
-input[type="number"] {
+input[type="email"],
+input[type="number"],
+textarea {
   padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -296,7 +360,9 @@ input[type="number"] {
 input[type="date"]:focus,
 input[type="time"]:focus,
 input[type="text"]:focus,
-input[type="number"]:focus {
+input[type="email"]:focus,
+input[type="number"]:focus,
+textarea:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(26, 77, 122, 0.3);
@@ -305,13 +371,20 @@ input[type="number"]:focus {
 input[type="date"]::placeholder,
 input[type="time"]::placeholder,
 input[type="text"]::placeholder,
-input[type="number"]::placeholder {
+input[type="email"]::placeholder,
+input[type="number"]::placeholder,
+textarea::placeholder {
   color: #7f8c8d;
   font-weight: 500;
 }
 
 input[type="time"]::placeholder {
   opacity: 1;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
 }
 
 
@@ -702,6 +775,7 @@ select:hover {
   input[type="date"],
   input[type="time"],
   input[type="text"],
+  input[type="email"],
   input[type="number"] {
     font-size: 1.05rem;
   }
